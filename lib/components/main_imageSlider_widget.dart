@@ -53,6 +53,7 @@ class CarouselSliderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("userInfoList: $userInfoList");
     return CarouselSlider(
       carouselController: controller,
       items: userInfoList.map((item) {

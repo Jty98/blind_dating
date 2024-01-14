@@ -43,6 +43,8 @@ class MainPage extends StatelessWidget {
   String userImagepath2 = "";
   String userImagepath3 = "";
 
+  List results = [];
+
   /*
   saveSharedPreferences로 저장된 로그인 정보 받기
   Future<String> initSharedPreferences() async {
@@ -82,9 +84,9 @@ class MainPage extends StatelessWidget {
                 // ]),
                 future: () async {
                   // 리스트로 집어넣어서 순서를 줌으로써 기존의 future빌더의 wait의 모두 실행될때까지라는 조건의 단점을 보완함 (이거 안해주면 null값 불러와서 오류남)
-                  List results = [];
-                  results.add(
-                      await userDataController.initLocation()); // 내 위치 가져오기
+                  results = [];
+                  results.add(await userDataController
+                      .checkLocationPermission()); // 내 위치 가져오기
                   results.add(
                       await userDataController.userGrantUpdate()); // 권한 업데이트
                   results.add(await userDataController
@@ -94,8 +96,9 @@ class MainPage extends StatelessWidget {
                   return results;
                 }(),
                 builder: (context, snapshot) {
+                  print(3333);
                   if (snapshot.connectionState == ConnectionState.done) {
-                    // if (snapshot.hasData && snapshot.data?.length == 2) {
+                    print(222);
                     if (snapshot.hasData) {
                       // ================== 조건부 Select ==================
                       Position? userPosition = snapshot.data?[0]; // 현재 내 위치
@@ -279,21 +282,24 @@ class MainPage extends StatelessWidget {
                                 height: 600,
                                 child: Stack(
                                   children: [
-                                    GetBuilder<IndicatorCurrent>(
-                                      builder: (controller) {
-                                        return CarouselSliderWidget(
-                                          controller: sliderController,
-                                          userInfoList: carouselItems,
-                                          current: controller.current,
-                                        );
-                                      },
-                                      //   CarouselSliderWidget(
-                                      //     controller: sliderController,
-                                      //     userInfoList: carouselItems,
-                                      //     current: controller.current,
-                                      //   );
-                                      // },
+                                    // GetBuilder<IndicatorCurrent>(
+                                    //   builder: (controller) {
+                                    //     return
+                                    Obx( ()
+                                      => CarouselSliderWidget(
+                                        controller: sliderController,
+                                        userInfoList: carouselItems,
+                                        current: indicatorCurrent.current,
+                                      ),
                                     ),
+                                    // },
+                                    //   CarouselSliderWidget(
+                                    //     controller: sliderController,
+                                    //     userInfoList: carouselItems,
+                                    //     current: controller.current,
+                                    //   );
+                                    // },
+                                    // ),
                                     CarouselIndicator(
                                       userInfoList: carouselItems,
                                       current: indicatorCurrent.current,
