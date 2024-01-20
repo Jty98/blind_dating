@@ -278,7 +278,7 @@ class PayMentsWidget extends StatelessWidget {
                             ),
                             Obx(
                               () => Checkbox(
-                                value: payMentsController.electronicPay.value,
+                                value: payMentsController.checkAll.value,
                                 onChanged: (value) {
                                   payMentsController.funcAllCheck(value!);
                                 },
@@ -300,9 +300,10 @@ class PayMentsWidget extends StatelessWidget {
                           children: [
                             Obx(
                               () => Checkbox(
-                                value: payMentsController.checkAll.value,
+                                value: payMentsController.electronicPay.value,
                                 onChanged: (value) {
                                   payMentsController.funcElectroCheck(value!);
+                                  // payMentsController.electronicPay(value!);
                                 },
                               ),
                             ),
@@ -328,7 +329,8 @@ class PayMentsWidget extends StatelessWidget {
                               () => Checkbox(
                                 value: payMentsController.userInfoUsage.value,
                                 onChanged: (value) {
-                                  payMentsController.userInfoUsage(value!);
+                                  // payMentsController.userInfoUsage(value!);
+                                  payMentsController.funcUserInfoCheck(value!);
                                 },
                               ),
                             ),
@@ -355,8 +357,7 @@ class PayMentsWidget extends StatelessWidget {
                                 value: payMentsController
                                     .userInfoThirdParties.value,
                                 onChanged: (value) {
-                                  payMentsController
-                                      .userInfoThirdParties(value!);
+                                  payMentsController.funcUserInfoThirdPartiesCheck(value!);
                                 },
                               ),
                             ),

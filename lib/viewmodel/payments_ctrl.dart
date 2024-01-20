@@ -31,11 +31,11 @@ class PayMentsController extends GetxController {
   }
 
   void funcElectroCheck(bool? value) {
-    if (value != null) {
+    // if (value != null) {
       // 널체크 안해주면 얘는 고장남;
-      electronicPay.value = value;
+      electronicPay.value = value!;
       updateCheckAll();
-    }
+    // }
   }
 
   void funcUserInfoCheck(bool value) {
