@@ -23,7 +23,7 @@ class MainPage extends StatelessWidget {
   // 현재 이미지 슬라이더의 상태를 관리하는 GetX 컨트롤러
   final IndicatorCurrent indicatorCurrent = Get.put(IndicatorCurrent());
   // 유저와 관련된 getX
-  final LoadUserData userDataController = Get.put(LoadUserData());
+  final userDataController = Get.find<LoadUserData>();
   // 유저 거리를 담아놓을 변수
   String reciveUserDistance = "";
   // 유저 정보 JSON으로 받아올 리스트

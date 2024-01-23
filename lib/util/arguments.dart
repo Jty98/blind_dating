@@ -1,5 +1,5 @@
 class Arguments {
-  static String Electronic_Financial_Transactions = """
+  static const String Electronic_Financial_Transactions = """
   ## 전자금융거래 이용약관 동의서
 
 제1조(목적)
@@ -152,7 +152,7 @@ class Arguments {
 – 변경 시행일자 : 2023년 7월 31일
 
 """;
-  static String Personal_Information_Useage = """
+  static const String Personal_Information_Useage = """
   ## 개인정보 수집/이용안내 동의서
 
 안녕하세요. 저희는 어플회사(이하 "회사"라 함)에서 고객님의 개인정보를 중요시하며, 관련 법규를 준수하여 개인정보를 보호하고 있습니다. 이에 고객님께서는 아래의 개인정보 처리 동의에 동의해주시면 감사하겠습니다.
@@ -220,7 +220,7 @@ class Arguments {
 """;
 
 
-static String Personal_Information_Third_Parties = """
+static const String Personal_Information_Third_Parties = """
     ## 개인정보 제3자 제공/위탁안내 동의서
 
 안녕하세요. 저희는 어플회사(이하 "회사"라 함)에서 고객님의 개인정보를 중요시하며, 관련 법규를 준수하여 개인정보를 보호하고 있습니다. 이에 고객님께서는 아래의 개인정보 처리 동의에 동의해주시면 감사하겠습니다.

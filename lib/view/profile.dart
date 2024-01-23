@@ -4,6 +4,7 @@ import 'package:blind_dating/view/login.dart';
 import 'package:blind_dating/view/profilemodify.dart';
 import 'package:blind_dating/view/signupfirst.dart';
 import 'package:blind_dating/view/signupsecond.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -26,28 +27,7 @@ class _ProfileState extends State<Profile> {
     super.initState();
     SubscriptionController = TextEditingController();
     ContractController = TextEditingController();
-
-    try {
-      print('uid: ${UserModel.uid}');
-      imageURL = loadImageURL('user/profile/${UserModel.uid}_profile_1');
-      imageURL.then((url) {
-        UserModel.setImageURL(url); // 이미지 URL을 UserModel의 imageURL 변수에 저장
-      });
-    } catch (e) {
-      print('Error in initState: $e'); // 에러를 콘솔에 출력
-    }
   }
-
-  Future<String> loadImageURL(String path) async {
-  Reference _ref = FirebaseStorage.instance.ref().child(path);
-  try {
-    String url = await _ref.getDownloadURL();
-    return url;
-  } catch (e) {
-    print('FirebaseException: $e'); // 에러 발생 시 예외 던지기
-    return '';
-  }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -60,21 +40,10 @@ class _ProfileState extends State<Profile> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                FutureBuilder<String>(
-                  future: imageURL,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      // While waiting for the image to load, you can display a loading indicator or placeholder.
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Error loading image');
-                    } else {
-                      return CircleAvatar(
-                        backgroundImage: NetworkImage(snapshot.data!),
-                        radius: 100,
-                      );
-                    }
-                  },
+                CircleAvatar(
+                  backgroundImage:
+                      CachedNetworkImageProvider(UserModel.imageURL),
+                      radius: 100,
                 ),
                 SizedBox(
                   height: 40,

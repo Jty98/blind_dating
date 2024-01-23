@@ -17,6 +17,7 @@ class LoadUserData extends GetxController {
   Rx<Position?> myLocation = Rx<Position?>(null);
   var isPermissionGranted = false.obs;
   var userList = [].obs; // 유저 정보를 저장할 리스트
+  List loginData = []; // 로그인된 유저 정보를 저장할 리스트
   RxInt userGrant = 0.obs;
   double latData = 0.0;
   double longData = 0.0;
@@ -99,7 +100,7 @@ class LoadUserData extends GetxController {
   구까지 할려고 했으나 지역명에 구가 안들어가는 지역도 있고 시가 제일 조회하기 편함
   */
   Future<List> getLoginData() async {
-    List loginData = [];
+    loginData = [];
     // initSharedPreferences에서 uid만 가져와서 요청 보내기
     String getUid = await initSharedPreferences();
     // print("getLoginData uid:$getUid");
@@ -114,6 +115,22 @@ class LoadUserData extends GetxController {
     List result = dataConvertedJSON['results'];
     loginData.addAll(result);
     // print("Login result: $result");
+    // print("loginData: $loginData");
+
+    if (result.isNotEmpty) {
+      // 이미지 URL 추출
+      String ufaceimg1 = result[0]['ufaceimg1'];
+      // String uhobbyimg1 = result[0]['uhobbyimg1'];
+      // String uhobbyimg2 = result[0]['uhobbyimg2'];
+      // String uhobbyimg3 = result[0]['uhobbyimg3'];
+
+      // 이미지 URL을 UserModel에 저장
+      UserModel.setImageURL(ufaceimg1);
+      // UserModel.setImageURL(uhobbyimg1);
+      // UserModel.setImageURL(uhobbyimg2);
+      // UserModel.setImageURL(uhobbyimg3);
+    }
+
     return result;
   }
 
@@ -172,7 +189,7 @@ class LoadUserData extends GetxController {
 
   // ================== 위치 관리 ==================
 
-    checkLocationPermission() async {
+  checkLocationPermission() async {
     // 받을 때 까지 대기하기위해 async 사용
     // 권한 다이어로그 띄우기를 permission에 저장
     LocationPermission permission = await Geolocator.checkPermission();
@@ -192,29 +209,23 @@ class LoadUserData extends GetxController {
     }
   }
 
-Future<void> getCurrentLocation() async {
-  try {
-    print('실행됨');
-    Position? position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best, // 정확도를 best로
-      forceAndroidLocationManager: true,
-    );
-    print('실행됨1');
-    print("position: $position");
-    myLocation.value = position;
-    latData = myLocation.value!.latitude; // 위도 넣기
-    longData = myLocation.value!.longitude; // 경도 넣기
-    print("latData, longData : $latData, $longData");
-  } catch (e) {
-    print('error $e');
+  Future<void> getCurrentLocation() async {
+    try {
+      print('실행됨');
+      Position? position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best, // 정확도를 best로
+        forceAndroidLocationManager: true,
+      );
+      print('실행됨1');
+      print("position: $position");
+      myLocation.value = position;
+      latData = myLocation.value!.latitude; // 위도 넣기
+      longData = myLocation.value!.longitude; // 경도 넣기
+      print("latData, longData : $latData, $longData");
+    } catch (e) {
+      print('error $e');
+    }
   }
-}
-
-
-
-
-
-
 
   // // 앱 처음 위치 가져오기
   Future<Position?> initLocation() async {
@@ -326,7 +337,7 @@ Future<void> getCurrentLocation() async {
         Position position = await Geolocator.getCurrentPosition(
             desiredAccuracy:
                 LocationAccuracy.best); // 내 위치를 가져오는 실질적인 부분으로 best한 위치를 가져옴
-                print("object");
+        print("object");
         return position;
       }
     } catch (e) {

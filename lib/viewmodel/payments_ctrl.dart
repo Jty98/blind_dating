@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:blind_dating/viewmodel/loadUserData_ctrl.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,8 +12,6 @@ class PayMentsController extends GetxController {
   RxString selectedPayment = RxString(""); // 결제수단 종류
   String uid = "";
   String upw = "";
-
-  final LoadUserData loadUserDataController = Get.put(LoadUserData());
 
 
   // 결제수단 상태관리
@@ -32,9 +28,9 @@ class PayMentsController extends GetxController {
 
   void funcElectroCheck(bool? value) {
     // if (value != null) {
-      // 널체크 안해주면 얘는 고장남;
-      electronicPay.value = value!;
-      updateCheckAll();
+    // 널체크 안해주면 얘는 고장남;
+    electronicPay.value = value!;
+    updateCheckAll();
     // }
   }
 
@@ -55,7 +51,6 @@ class PayMentsController extends GetxController {
     // update();
   }
 
-
   Future<String> initSharedPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     uid = prefs.getString('uid') ?? " ";
@@ -65,8 +60,7 @@ class PayMentsController extends GetxController {
     return uid;
   }
 
-
-    Future<List> getLoginData() async {
+  Future<List> getLoginData() async {
     List loginData = [];
     // initSharedPreferences에서 uid만 가져와서 요청 보내기
     String getUid = await initSharedPreferences();
@@ -85,22 +79,20 @@ class PayMentsController extends GetxController {
     return result;
   }
 
-
-Future<bool> purchaseAction(int pcode) async {
-  String uid = await initSharedPreferences();
-  try {
-    var url = Uri.parse(
-        "http://localhost:8080/Flutter/dateapp_purchase_flutter.jsp?user_uid=$uid&product_pcode=$pcode&payinformation=${selectedPayment.value}");
-    await http.get(url);
-    // await loadUserDataController.getUserData();
-    await getLoginData();
-    return true;
-  } catch (e) {
-    // 예외가 발생한 경우에 대한 처리
-    print("오류 발생: $e");
-    return false;
+  /// 결제 진행 및 결제 정보 저장
+  Future<bool> purchaseAction(int pcode) async {
+    String uid = await initSharedPreferences();
+    try {
+      var url = Uri.parse(
+          "http://localhost:8080/Flutter/dateapp_purchase_flutter.jsp?user_uid=$uid&product_pcode=$pcode&payinformation=${selectedPayment.value}");
+      await http.get(url);
+      // await loadUserDataController.getUserData();
+      await getLoginData();
+      return true;
+    } catch (e) {
+      // 예외가 발생한 경우에 대한 처리
+      print("오류 발생: $e");
+      return false;
+    }
   }
-}
-
-
 }

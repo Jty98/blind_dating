@@ -1,10 +1,10 @@
+import 'package:blind_dating/components/terms.dart';
 import 'package:blind_dating/homewidget.dart';
 import 'package:blind_dating/util/arguments.dart';
 import 'package:blind_dating/view/mainpage.dart';
 import 'package:blind_dating/viewmodel/payments_ctrl.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PayMentsWidget extends StatelessWidget {
   const PayMentsWidget({super.key});
@@ -13,142 +13,11 @@ class PayMentsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     PayMentsController payMentsController = Get.put(PayMentsController());
 
-    bool? allOk = false; // 전체 동의 체크박스
-    bool electronicPay = false; // 전자금융거래 동의 체크박스
-    bool userInfoUseage = false; // 개인정보 수집 동의 체크박스
-    bool userInfoThirdParties = false; // 제 3자 정보제공 동의 체크박스
-
-    String selectedPaymentsList = "";
-    Future<String> uid = payMentsController.initSharedPreferences();
-    ;
-    RxString upw = payMentsController.selectedPayment;
-
-    //     Future<String> initSharedPreferences() async {
-    //   final prefs = await SharedPreferences.getInstance();
-    //   uid = prefs.getString('uid') ?? " ";
-    //   upw = prefs.getString('upw') ?? " ";
-    //   print("pay send uid: $uid");
-    //   print("pay send upw: $upw");
-    //   return uid;
-    // }
-
-    // 전자거래 이용약관
-    electroPayDialog() {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('이용약관'),
-            content: SingleChildScrollView(
-              child: Container(
-                color: Colors.white,
-                width: 350,
-                child: Text(
-                  Arguments.Electronic_Financial_Transactions,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style:
-                        TextButton.styleFrom(minimumSize: const Size(200, 30)),
-                    child: const Text('확인'),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    // 개인정보 사용 이용약관
-    userInfoUseageDialog() {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('이용약관'),
-            content: SingleChildScrollView(
-              child: Container(
-                color: Colors.white,
-                width: 350,
-                child: Text(
-                  Arguments.Personal_Information_Useage,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style:
-                        TextButton.styleFrom(minimumSize: const Size(200, 30)),
-                    child: const Text('확인'),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    // 제3자 이용약관
-    userInfoThirdPartiesDialog() {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('이용약관'),
-            content: SingleChildScrollView(
-              child: Container(
-                color: Colors.white,
-                width: 350,
-                child: Text(
-                  Arguments.Personal_Information_Third_Parties,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style:
-                        TextButton.styleFrom(minimumSize: const Size(200, 30)),
-                    child: const Text('확인'),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      );
-    }
-
     // 결제 성공 결과
     void purchaseSuccsessResultDialog() {
       Get.defaultDialog(
         title: 'Primium 구독권 결제가\n완료되었습니다!',
         middleText: '이제 마음에 드는 이성과 자유롭게 채팅해보세요!',
-        // backgroundColor: Colors.yellowAccent,
         barrierDismissible: true,
         actions: [
           Column(
@@ -166,12 +35,12 @@ class PayMentsWidget extends StatelessWidget {
         ],
       );
     }
+
     // 결제 실패 결과
     void failedDialog() {
       Get.defaultDialog(
         title: '결제에 실패했습니다 😢',
         middleText: '결제 수단을 다시 확인해주세요.',
-        // backgroundColor: Colors.yellowAccent,
         barrierDismissible: true,
         actions: [
           Column(
@@ -312,7 +181,10 @@ class PayMentsWidget extends StatelessWidget {
                               width: 85,
                             ),
                             TextButton(
-                              onPressed: () => electroPayDialog(),
+                              onPressed: () => Terms().termsDialog(
+                                  context: context,
+                                  arguments: Arguments
+                                      .Electronic_Financial_Transactions),
                               style: TextButton.styleFrom(
                                   minimumSize: const Size(30, 30)),
                               child: const Text("보기"),
@@ -339,7 +211,10 @@ class PayMentsWidget extends StatelessWidget {
                               width: 80,
                             ),
                             TextButton(
-                              onPressed: () => userInfoUseageDialog(),
+                              onPressed: () => Terms().termsDialog(
+                                  context: context,
+                                  arguments:
+                                      Arguments.Personal_Information_Useage),
                               style: TextButton.styleFrom(
                                   minimumSize: const Size(30, 30)),
                               child: const Text("보기"),
@@ -357,7 +232,8 @@ class PayMentsWidget extends StatelessWidget {
                                 value: payMentsController
                                     .userInfoThirdParties.value,
                                 onChanged: (value) {
-                                  payMentsController.funcUserInfoThirdPartiesCheck(value!);
+                                  payMentsController
+                                      .funcUserInfoThirdPartiesCheck(value!);
                                 },
                               ),
                             ),
@@ -366,7 +242,10 @@ class PayMentsWidget extends StatelessWidget {
                               width: 42,
                             ),
                             TextButton(
-                              onPressed: () => userInfoThirdPartiesDialog(),
+                              onPressed: () => Terms().termsDialog(
+                                  context: context,
+                                  arguments: Arguments
+                                      .Personal_Information_Third_Parties),
                               style: TextButton.styleFrom(
                                   minimumSize: const Size(30, 30)),
                               child: const Text("보기"),
@@ -616,7 +495,7 @@ class PayMentsWidget extends StatelessWidget {
                     // 상품 코드만 넣어서 결제 진행
                     purchaseSuccsessResultDialog();
                     // Get.to(MainPage());
-                  } else{
+                  } else {
                     failedDialog();
                   }
                 }

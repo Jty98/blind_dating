@@ -1,3 +1,4 @@
+import 'package:blind_dating/components/mydrawer.dart';
 import 'package:blind_dating/model/sliderItems_model.dart';
 import 'package:blind_dating/model/user.dart';
 import 'package:blind_dating/util/theme.dart';
@@ -21,10 +22,8 @@ class HomeWidget extends StatefulWidget {
   State<HomeWidget> createState() => _HomeWidgetState();
 }
 
-class _HomeWidgetState extends State<HomeWidget> with SingleTickerProviderStateMixin{
-
-  // final chatRequestController = Get.put(ChatRequest());
-
+class _HomeWidgetState extends State<HomeWidget>
+    with SingleTickerProviderStateMixin {
   // property
   late TabController tabController;
 
@@ -42,7 +41,6 @@ class _HomeWidgetState extends State<HomeWidget> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-
     //     final Map<String, dynamic> data = Get.arguments;
 
     // final List<SliderlItems> receivedItems = data['items'];
@@ -57,133 +55,37 @@ class _HomeWidgetState extends State<HomeWidget> with SingleTickerProviderStateM
     // final int loginGrant = currentItem.loginGrant;
     // final String loginUName = currentItem.loginName;
 
-
     return Scaffold(
       appBar: const AppbarWidget(),
-      // AppBar(
-      //   title: const Text("소🐶팅"),
-      // ),
       body: TabBarView(
-        controller: tabController,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          MainPage(),      // 태영 메인 페이지
-          const ChatRoomLists(),         // 진 채팅 페이지       
-          // const FavoritePage(),
-          const AlarmPage(),
-          const Profile()        // ?? 프로필 페이지
-        ]
-      ),
-      drawer: Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [ 
-          const UserAccountsDrawerHeader(
-          currentAccountPicture: CircleAvatar(
-            backgroundImage: AssetImage('images/퍼그.png',),
-            radius: 200,
-          ),
-          accountName: Text('퍼그', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),), 
-          accountEmail: Text('very@cute.com', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),),
-          decoration: BoxDecoration(color: Color.fromARGB(255, 69, 135, 249),),
-          ),
-          ListTile(onTap: () {
-              Get.to(const Profile());
-            },
-            leading: const Icon(Icons.person,
-            // color: Theme.of(context).colorScheme.secondary,
-            ),
-            title: const Text('회원정보 수정'),
-          ),
-          ListTile(
-            onTap: () {
-                                    Get.defaultDialog(
-                        title: '로그아웃',
-                        middleText: '로그아웃 하시겠습니까?',
-                        backgroundColor: Color.fromARGB(255, 123, 166, 241),
-                        barrierDismissible: false,
-                        actions: [
-                            TextButton(
-                            onPressed: () {
-                              // UserModel.clearAllProperties();
-                              Get.to(() => Login());
-                            },
-                            child: Text(
-                              '확인',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-
-                          TextButton(
-                            onPressed: () {
-                              Get.back();
-                            },
-                            child: Text(
-                              '아니오',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-            },
-            leading: const Icon(Icons.login,
-            // color: Theme.of(context).colorScheme.secondary,
-            ),
-            title: const Text('로그아웃'),
-          ),
-          ListTile(
-            onTap: () {
-              // Get.changeTheme(
-              //   Get.isDarkMode ? CustomTheme.lighttheme : CustomTheme.darktheme,
-              // );
-            },
-            leading: Get.isDarkMode
-                ? Icon(Icons.sunny,
-                    color: Theme.of(context).colorScheme.secondary)
-                : Icon(Icons.dark_mode,
-                    color: Theme.of(context).colorScheme.secondary),
-            title: Get.isDarkMode
-                ? const Text('라이트 테마 변경')
-                : const Text('다크 테마 변경'),
-                ),
-          ],
-          ),
-      
-      ),
+          controller: tabController,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            MainPage(), // 태영 메인 페이지
+            const ChatRoomLists(), // 진 채팅 페이지
+            // const FavoritePage(),
+            const AlarmPage(),
+            const Profile() // ?? 프로필 페이지
+          ]),
+      drawer: const MyDrawer(),
       // 화면 하단 탭바 설정
       bottomNavigationBar: TabBar(
         controller: tabController,
         tabs: const [
           Tab(
-            icon: Icon(
-              Icons.home
-            ),
+            icon: Icon(Icons.home),
             text: "Home",
           ),
           Tab(
-            icon: Icon(
-              Icons.chat_bubble_outline
-            ),
+            icon: Icon(Icons.chat_bubble_outline),
             text: "Chats",
           ),
           Tab(
-            icon: Icon(
-              Icons.notifications_rounded
-            ),
+            icon: Icon(Icons.notifications_rounded),
             text: "Alarms",
           ),
           Tab(
-            icon: Icon(
-              Icons.person
-            ),
+            icon: Icon(Icons.person),
             text: "Profile",
           )
         ],
