@@ -10,31 +10,59 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   // final ChatController chatController = Get.put(ChatController());
-  
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late ThemeMode _themeMode;
+
+  @override
+  void initState() {
+    // _themeMode = widget.thmeInfo ? ThemeMode.dark : ThemeMode.light;
+    _themeMode = ThemeMode.system;
+    super.initState();
+  }
+
+  _changeThemeMode(ThemeMode themeMode) {
+    _themeMode = themeMode;
+    setState(() {});
+  }
+
+  static const seedColor = Colors.deepPurple;
 
   @override
   Widget build(BuildContext context) {
     // final firebaseMessages = FirebaseMessages();
     // firebaseMessages.initNotifications();   // firebase messaging - 알림 수신 허용 요청
-    
+
     return GetMaterialApp(
       title: 'Flutter Demo',
+      themeMode: _themeMode,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorSchemeSeed: seedColor,
         useMaterial3: true,
+        brightness: Brightness.light,
       ),
-      home: const Login(),
+      darkTheme: ThemeData(
+        colorSchemeSeed: seedColor,
+        useMaterial3: true,
+        brightness: Brightness.dark,
+      ),
+      home: Login(onChangeTheme: _changeThemeMode),
       debugShowCheckedModeBanner: false,
     );
   }

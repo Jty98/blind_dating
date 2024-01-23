@@ -13,11 +13,13 @@ import 'package:get/get.dart';
 // import 'package:cached_network_image/cached_network_image.dart';
 
 class DetailImageSliderWidget extends StatelessWidget {
+  final Function(ThemeMode) onChangeTheme;
   const DetailImageSliderWidget(
       {super.key,
       required this.controller,
       required this.userInfoList,
-      required this.detailCurrent});
+      required this.detailCurrent,
+      required this.onChangeTheme});
 
   final CarouselController controller; // CarouselController 인스턴스
   final List<SliderlItems> userInfoList; // 슬라이더에 담길 것들 가지고있는 리스트
@@ -39,7 +41,7 @@ class DetailImageSliderWidget extends StatelessWidget {
               controller: controller,
               userInfoList: userInfoList,
               detailCurrent: detailCurrent),
-          const DetailUserInfoWidget(),
+          DetailUserInfoWidget(onChangeTheme: onChangeTheme),
         ],
       ),
     );
@@ -215,7 +217,8 @@ class detailImageSliderWidget extends StatelessWidget {
 
 // 디테일창 유저 정보 위젯
 class DetailUserInfoWidget extends StatelessWidget {
-  const DetailUserInfoWidget({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const DetailUserInfoWidget({super.key, required this.onChangeTheme});
 
   @override
   Widget build(BuildContext context) {
@@ -242,7 +245,6 @@ class DetailUserInfoWidget extends StatelessWidget {
     final String loginUid = currentItem.loginUid;
     final String userid = currentItem.userId;
     final String loginName = currentItem.loginName;
-    
 
     // 채팅 요청 보내기 위한 firebase instance 생성
     final FirebaseFirestore _requestChating = FirebaseFirestore.instance;
@@ -259,30 +261,29 @@ class DetailUserInfoWidget extends StatelessWidget {
                 children: [
                   TextButton(
                       onPressed: () {
-                        final requests = FirebaseFirestore.instance.collection('requestChats').snapshots();
+                        final requests = FirebaseFirestore.instance
+                            .collection('requestChats')
+                            .snapshots();
                         // requests['from'];
-                        _requestChating.collection('requestChats').add(
-                          {
-                            'from': loginUid,
-                            'to': userid,
-                            'acceptState': 'wait',
-                            'requestedAt': FieldValue.serverTimestamp()
-                          }
-                        );
+                        _requestChating.collection('requestChats').add({
+                          'from': loginUid,
+                          'to': userid,
+                          'acceptState': 'wait',
+                          'requestedAt': FieldValue.serverTimestamp()
+                        });
                         showDialog(
-                          context: context, 
+                          context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
                               content: Text("$userName님께 채팅 요청을 보냈습니다."),
                               actions: [
                                 Center(
                                   child: TextButton(
-                                    onPressed: () {
-                                      Get.back();
-                                      Get.back();
-                                    }, 
-                                    child: const Text("확인")
-                                  ),
+                                      onPressed: () {
+                                        Get.back();
+                                        Get.back();
+                                      },
+                                      child: const Text("확인")),
                                 )
                               ],
                             );
@@ -317,7 +318,9 @@ class DetailUserInfoWidget extends StatelessWidget {
               Column(
                 children: [
                   TextButton(
-                    onPressed: () => Get.to(const PayMentsPage()),
+                    onPressed: () => Get.to(() => PayMentsPage(
+                          onChangeTheme: onChangeTheme,
+                        )),
                     child: const Text('구매하기'),
                   ),
                   TextButton(
@@ -342,28 +345,25 @@ class DetailUserInfoWidget extends StatelessWidget {
                 children: [
                   TextButton(
                     onPressed: () {
-                      _requestChating.collection('requestChats').add(
-                        {
-                          'from': loginUid,
-                          'to': userid,
-                          'acceptState': 'wait',
-                          'requestedAt': FieldValue.serverTimestamp()
-                        }
-                      );
+                      _requestChating.collection('requestChats').add({
+                        'from': loginUid,
+                        'to': userid,
+                        'acceptState': 'wait',
+                        'requestedAt': FieldValue.serverTimestamp()
+                      });
                       showDialog(
-                        context: context, 
+                        context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             content: Text("$userName님께 채팅 요청을 보냈습니다."),
                             actions: [
                               Center(
                                 child: TextButton(
-                                  onPressed: () {
-                                    Get.back();
-                                    Get.back();
-                                  }, 
-                                  child: const Text("확인")
-                                ),
+                                    onPressed: () {
+                                      Get.back();
+                                      Get.back();
+                                    },
+                                    child: const Text("확인")),
                               )
                             ],
                           );

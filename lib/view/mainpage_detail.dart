@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class MainPageDetail extends StatelessWidget {
-  MainPageDetail({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  MainPageDetail({super.key, required this.onChangeTheme});
 
   // class 아래 BuildContext 위에 유저 데이터를 관리하는 컨트롤러 인스턴스 선언
   final LoadUserData userDataController = Get.put(LoadUserData());
@@ -66,6 +67,7 @@ class MainPageDetail extends StatelessWidget {
                     controller: sliderController,
                     userInfoList: receivedItems,
                     detailCurrent: controller.detailCurrent,
+                    onChangeTheme: onChangeTheme,
                   );
                 },
               ),

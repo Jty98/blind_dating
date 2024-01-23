@@ -11,7 +11,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/route_manager.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const Profile({super.key, required this.onChangeTheme});
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -50,7 +51,7 @@ class _ProfileState extends State<Profile> {
                 ),
                 ElevatedButton(
                     onPressed: () {
-                      Get.to(() => ProfileModify());
+                      Get.to(() => ProfileModify(onChangeTheme: widget.onChangeTheme,));
                     },
                     style: TextButton.styleFrom(
                         minimumSize: Size(170, 50),
@@ -88,7 +89,7 @@ class _ProfileState extends State<Profile> {
                       ),
                       IconButton(
                           onPressed: () {
-                            Get.to(HomeWidget());
+                            Get.to(HomeWidget(onChangeTheme: widget.onChangeTheme,));
                           },
                           icon: Icon(Icons.arrow_forward_ios))
                     ],

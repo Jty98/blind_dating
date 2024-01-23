@@ -14,7 +14,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 class MainPage extends StatelessWidget {
-  MainPage({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  MainPage({super.key, required this.onChangeTheme});
   // 앱 전역에서 사용자에게 채팅 요청 및 응답 다이어로그 보여주는 컨트롤러
   // final chatRequestController = Get.put(ChatRequest());
 
@@ -260,7 +261,7 @@ class MainPage extends StatelessWidget {
                             GestureDetector(
                               onTap: () {
                                 Get.to(
-                                  MainPageDetail(),
+                                  MainPageDetail(onChangeTheme: onChangeTheme),
                                   arguments: {
                                     'items': carouselItems,
                                     'index': indicatorCurrent.current,

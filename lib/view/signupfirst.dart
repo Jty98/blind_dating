@@ -7,7 +7,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/route_manager.dart';
 
 class SignUpFirst extends StatefulWidget {
-  const SignUpFirst({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const SignUpFirst({super.key, required this.onChangeTheme});
 
   @override
   State<SignUpFirst> createState() => _SignUpFirstState();
@@ -323,7 +324,7 @@ class _SignUpFirstState extends State<SignUpFirst> {
                               showSnackBar('비밀번호가 일치하지 않습니다.');
                               } else {
                               saveDataToUserModel();
-                              Get.to(SignUpSecond());
+                              Get.to(() => SignUpSecond(onChangeTheme: widget.onChangeTheme,));
                               }
                     },
                     style: ElevatedButton.styleFrom(

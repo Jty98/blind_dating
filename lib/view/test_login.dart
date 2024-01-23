@@ -12,7 +12,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestLogin extends StatefulWidget {
-  const TestLogin({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const TestLogin({super.key, required this.onChangeTheme});
 
   @override
   State<TestLogin> createState() => _TestLoginState();
@@ -103,7 +104,7 @@ class _TestLoginState extends State<TestLogin> with WidgetsBindingObserver {
             ElevatedButton(
               onPressed: () {
                 saveSharePreferencese();
-                Get.to(const HomeWidget(),); // 페이지로 저장시킬 id정보 넘기기
+                Get.to(() => HomeWidget(onChangeTheme: widget.onChangeTheme),); // 페이지로 저장시킬 id정보 넘기기
               },
               child: const Text('로그인'),
             ),
@@ -112,7 +113,7 @@ class _TestLoginState extends State<TestLogin> with WidgetsBindingObserver {
             ),
             ElevatedButton(
               onPressed: () {
-                Get.to(const SignUpFirst());
+                Get.to(() => SignUpFirst(onChangeTheme: widget.onChangeTheme,));
               },
               child: const Text('회원가입'),
             ),

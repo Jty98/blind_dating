@@ -144,7 +144,8 @@ Stream<String> waitingTextStream() async* {
 }
 
 class SignUpSecond extends StatefulWidget {
-  const SignUpSecond({Key? key}) : super(key: key);
+  final Function(ThemeMode) onChangeTheme;
+  const SignUpSecond({Key? key, required this.onChangeTheme}) : super(key: key);
 
   @override
   State<SignUpSecond> createState() => _SignUpSecondState();
@@ -333,7 +334,7 @@ class _SignUpSecondState extends State<SignUpSecond> {
                   padding: const EdgeInsets.fromLTRB(15, 75, 15, 80),
                   child: ElevatedButton(
                     onPressed: hasReceivedResult ? () {
-                      Get.to(() => SignUpThird());
+                      Get.to(() => SignUpThird(onChangeTheme: widget.onChangeTheme,));
                     } : null,
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size(400, 50),

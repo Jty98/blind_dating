@@ -12,7 +12,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
 class ProfileModify extends StatefulWidget {
-  const ProfileModify({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const ProfileModify({super.key, required this.onChangeTheme});
 
   @override
   State<ProfileModify> createState() => _ProfileModifyState();
@@ -217,7 +218,7 @@ class _ProfileModifyState extends State<ProfileModify> {
                             TextButton(
                             onPressed: () {
                               userDelete();
-                              Get.to(() => HomeWidget());
+                              Get.to(() => HomeWidget(onChangeTheme: widget.onChangeTheme,));
                             },
                             child: Text(
                               '확인',
@@ -368,7 +369,7 @@ updateShowDialog() {
     actions: [
       TextButton(
         onPressed: () {
-          Get.to(() => HomeWidget());
+          Get.to(() => HomeWidget(onChangeTheme: widget.onChangeTheme,));
         },
         child: Text('확인'),
       ),
@@ -386,7 +387,7 @@ userDelete() async {
 
   if (dataConvertedJSON['result'] == 'OK') {
     // 회원 삭제 성공 시 수행할 작업
-    Get.to(() => HomeWidget());
+    Get.to(() => HomeWidget(onChangeTheme: widget.onChangeTheme,));
   } else {
     // 회원 삭제 실패 시 수행할 작업
     // 에러 메시지를 표시하거나, 다른 동작을 수행할 수 있습니다.

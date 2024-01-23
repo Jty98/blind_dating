@@ -9,7 +9,8 @@ import 'package:http/http.dart' as http;
 import '../homewidget.dart';
 
 class SignUpFourth extends StatefulWidget {
-  const SignUpFourth({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const SignUpFourth({super.key, required this.onChangeTheme});
 
   @override
   State<SignUpFourth> createState() => _SignUpFourthState();
@@ -429,7 +430,7 @@ class _SignUpFourthState extends State<SignUpFourth> {
           TextButton(
               onPressed: () {
                 // 모든 값이 선택되었을 때 홈 화면으로 이동
-                Get.to(Login());
+                Get.to(Login(onChangeTheme: widget.onChangeTheme,));
               },
               child: Text('닫기',style: TextStyle(color: Colors.black, fontSize: 13),))
         ]);

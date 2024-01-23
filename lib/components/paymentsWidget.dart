@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class PayMentsWidget extends StatelessWidget {
-  const PayMentsWidget({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const PayMentsWidget({super.key, required this.onChangeTheme});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ class PayMentsWidget extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Get.back();
-                  Get.to((const HomeWidget()));
+                  Get.to(() => HomeWidget(onChangeTheme: onChangeTheme,));
                   // Get.back();
                 },
                 child: const Text("확인"),

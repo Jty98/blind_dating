@@ -16,7 +16,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 class HomeWidget extends StatefulWidget {
-  const HomeWidget({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const HomeWidget({super.key, required this.onChangeTheme});
 
   @override
   State<HomeWidget> createState() => _HomeWidgetState();
@@ -61,13 +62,13 @@ class _HomeWidgetState extends State<HomeWidget>
           controller: tabController,
           physics: const NeverScrollableScrollPhysics(),
           children: [
-            MainPage(), // 태영 메인 페이지
+            MainPage(onChangeTheme: widget.onChangeTheme), // 태영 메인 페이지
             const ChatRoomLists(), // 진 채팅 페이지
             // const FavoritePage(),
             const AlarmPage(),
-            const Profile() // ?? 프로필 페이지
+            Profile(onChangeTheme: widget.onChangeTheme,) // ?? 프로필 페이지
           ]),
-      drawer: const MyDrawer(),
+      drawer: MyDrawer(onChangeTheme: widget.onChangeTheme),
       // 화면 하단 탭바 설정
       bottomNavigationBar: TabBar(
         controller: tabController,

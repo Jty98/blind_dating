@@ -9,7 +9,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const Login({super.key, required this.onChangeTheme});
 
   @override
   State<Login> createState() => _LoginState();
@@ -156,7 +157,7 @@ void loginCheck() async {
 
   print('responseData : ${responseData}');
     if (responseData == '1') {
-      Get.to(() => HomeWidget());
+      Get.to(() => HomeWidget(onChangeTheme: widget.onChangeTheme,));
       _saveSharePreferencese(); // Get.to() 이후에 호출
     } else {
       Get.snackbar(

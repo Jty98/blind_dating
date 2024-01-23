@@ -7,7 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class SignUpThird extends StatefulWidget {
-  const SignUpThird({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const SignUpThird({super.key, required this.onChangeTheme});
 
   @override
   State<SignUpThird> createState() => _SignUpThirdState();
@@ -212,7 +213,7 @@ class _SignUpThirdState extends State<SignUpThird> {
       // 프로필 이미지와 취미 이미지가 모두 선택되면 UserModel에 저장 후, SignUpFourth로 이동
       saveProfileImageURLs();
       saveHobbyImageURLs();
-      Get.to(() => SignUpFourth());
+      Get.to(() => SignUpFourth(onChangeTheme: widget.onChangeTheme,));
     }
   }
 

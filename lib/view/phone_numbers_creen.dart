@@ -11,7 +11,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 
 class phoneNumberScreen extends StatefulWidget {
-  const phoneNumberScreen({super.key});
+  final Function(ThemeMode) onChangeTheme;
+  const phoneNumberScreen({super.key, required this.onChangeTheme});
 
   @override
   State<phoneNumberScreen> createState() => _phoneNumberScreenState();
@@ -180,13 +181,13 @@ class _phoneNumberScreenState extends State<phoneNumberScreen> {
       // result에 따라 다른 작업 수행
       if (result == "-1") {
         // 탈퇴한 유저
-        Get.to(() => SignUpFirst());
+        Get.to(() => SignUpFirst(onChangeTheme: widget.onChangeTheme,));
       } else if (result == "0") {
         // 신규 유저
-        Get.to(() => SignUpFirst());
+        Get.to(() => SignUpFirst(onChangeTheme: widget.onChangeTheme,));
       } else if (result == "1") {
         // 기존 유저
-        Get.to(() => Login());
+        Get.to(() => Login(onChangeTheme: widget.onChangeTheme,));
       } else {
         // 처리 로직 (다른 경우)
       }
