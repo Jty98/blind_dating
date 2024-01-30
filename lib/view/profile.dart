@@ -1,6 +1,7 @@
 import 'package:blind_dating/homewidget.dart';
 import 'package:blind_dating/model/user.dart';
 import 'package:blind_dating/view/login.dart';
+import 'package:blind_dating/view/paymentspage.dart';
 import 'package:blind_dating/view/profilemodify.dart';
 import 'package:blind_dating/view/signupfirst.dart';
 import 'package:blind_dating/view/signupsecond.dart';
@@ -21,7 +22,6 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   late TextEditingController SubscriptionController;
   late TextEditingController ContractController;
-  late Future<String> imageURL;
 
   @override
   void initState() {
@@ -89,7 +89,8 @@ class _ProfileState extends State<Profile> {
                       ),
                       IconButton(
                           onPressed: () {
-                            Get.to(HomeWidget(onChangeTheme: widget.onChangeTheme,));
+                            // Get.to(HomeWidget(onChangeTheme: widget.onChangeTheme,));
+                            Get.to(() => PayMentsPage(onChangeTheme: widget.onChangeTheme,));
                           },
                           icon: Icon(Icons.arrow_forward_ios))
                     ],

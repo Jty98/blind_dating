@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:blind_dating/homewidget.dart';
 import 'package:blind_dating/model/user.dart';
 import 'package:blind_dating/view/profile.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -65,9 +66,9 @@ class _ProfileModifyState extends State<ProfileModify> {
 
     inputValue = "";
     imageURL = loadImageURL('user/profile/${UserModel.uid}_profile_1');
-    imageURL.then((url) {
-      UserModel.setImageURL(url); // 이미지 URL을 UserModel의 imageURL 변수에 저장
-    });
+    // imageURL.then((url) {
+    //   UserModel.setImageURL(url); // 이미지 URL을 UserModel의 imageURL 변수에 저장
+    // });
   }
 
   @override
@@ -90,7 +91,12 @@ class _ProfileModifyState extends State<ProfileModify> {
             child: Column(
               children: [
                 SizedBox(height: 5, width: double.infinity),
-                _buildPhotoArea(),
+                // _buildPhotoArea(),
+                CircleAvatar(
+                  backgroundImage:
+                      CachedNetworkImageProvider(UserModel.imageURL),
+                  radius: 100,
+                ),
                 SizedBox(height: 15),
                 _buildButton(),
                 SizedBox(
@@ -215,10 +221,12 @@ class _ProfileModifyState extends State<ProfileModify> {
                         backgroundColor: Color.fromARGB(255, 245, 153, 150),
                         barrierDismissible: false,
                         actions: [
-                            TextButton(
+                          TextButton(
                             onPressed: () {
                               userDelete();
-                              Get.to(() => HomeWidget(onChangeTheme: widget.onChangeTheme,));
+                              Get.to(() => HomeWidget(
+                                    onChangeTheme: widget.onChangeTheme,
+                                  ));
                             },
                             child: Text(
                               '확인',
@@ -229,7 +237,6 @@ class _ProfileModifyState extends State<ProfileModify> {
                               ),
                             ),
                           ),
-
                           TextButton(
                             onPressed: () {
                               Get.back();
@@ -249,7 +256,8 @@ class _ProfileModifyState extends State<ProfileModify> {
                     child: Text(
                       '회원탈퇴',
                       style: TextStyle(
-                        color: const Color.fromARGB(255, 253, 91, 79),fontSize: 15,fontWeight: FontWeight.bold,
+                        color: const Color.fromARGB(255, 253, 91, 79),
+                        fontSize: 15, fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline, // 밑줄 추가
                       ),
                     ),
@@ -268,7 +276,9 @@ class _ProfileModifyState extends State<ProfileModify> {
         ? Container(
             width: 200,
             height: 200,
-            child: Image.file(File(_image!.path)), //가져온 이미지를 화면에 띄워주는 코드
+            // child: Image.file(File(_image!.path)), //가져온 이미지를 화면에 띄워주는 코드
+            child: Image.network(UserModel.imageURL),
+            //  CachedNetworkImage(UserModel.imageURL), //가져온 이미지를 화면에 띄워주는 코드
           )
         : FutureBuilder<String>(
             future: imageURL,
@@ -315,83 +325,89 @@ class _ProfileModifyState extends State<ProfileModify> {
     );
   }
 
-
-getJSONData() async {
-  var url = Uri.parse('http://localhost:8080/Flutter/dateapp_user_query_flutter.jsp?uid=${UserModel.uid}');
-  var response = await http.get(url);
-  // print(response.body);
-  var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
-  Map<String, dynamic> result = dataConvertedJSON['results'][0]; // Map으로 변경
-  setState(() {
-    userdata = result; // userdata에 Map으로 저장
-    IDController = TextEditingController(text: userdata['uid']);
-    NickNameController = TextEditingController(text: userdata['unickname']);
-    AddressController = TextEditingController(text: userdata['uaddress']);
-  });
-}
-
-userInfoUpdate() async {
-  var url = Uri.parse('http://localhost:8080/Flutter/dateapp_user_update_flutter.jsp?uid=${IDController.text}&unickname=${NickNameController.text}&uaddress=${AddressController.text}');
-  var response = await http.get(url);
-  print(response.body);
-  var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
-  Map<String, dynamic> result = {};
-  if (dataConvertedJSON['results'] != null && dataConvertedJSON['results'].isNotEmpty) {
-  result = dataConvertedJSON['results'][0];
-  }// Map으로 변경
-  if (!RegExp(r'^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9]).{8,15}$').hasMatch(PWController.text)) {
-    Get.snackbar(
-      "Error",
-      '비밀번호는 영문 대소문자, 숫자를 혼합하여 8~15자여야 합니다.',
-      snackPosition: SnackPosition.BOTTOM,
-      duration: Duration(seconds: 2),
-      backgroundColor: Color.fromARGB(255, 232, 157, 157),
-    );
-  } else if (PWController.text != PWCheckController.text) {
-    Get.snackbar(
-      "Error",
-      '비밀번호가 일치하지 않습니다.',
-      snackPosition: SnackPosition.BOTTOM,
-      duration: Duration(seconds: 2),
-      backgroundColor: Color.fromARGB(255, 232, 157, 157),
-    );
-  } else {
-    updateShowDialog();
+  getJSONData() async {
+    var url = Uri.parse(
+        'http://localhost:8080/Flutter/dateapp_user_query_flutter.jsp?uid=${UserModel.uid}');
+    var response = await http.get(url);
+    // print(response.body);
+    var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+    Map<String, dynamic> result = dataConvertedJSON['results'][0]; // Map으로 변경
+    setState(() {
+      userdata = result; // userdata에 Map으로 저장
+      IDController = TextEditingController(text: userdata['uid']);
+      NickNameController = TextEditingController(text: userdata['unickname']);
+      AddressController = TextEditingController(text: userdata['uaddress']);
+    });
   }
-}
 
-updateShowDialog() {
-  Get.defaultDialog(
-    title: '회원정보 수정',
-    middleText: '회원정보가 수정되었습니다.',
-    backgroundColor: Color.fromARGB(255, 59, 160, 237),
-    barrierDismissible: false,
-    actions: [
-      TextButton(
-        onPressed: () {
-          Get.to(() => HomeWidget(onChangeTheme: widget.onChangeTheme,));
-        },
-        child: Text('확인'),
-      ),
-    ],
-  );
-}
-
-userDelete() async {
-  var url = Uri.parse(
-      'http://localhost:8080/Flutter/dateapp_user_delete_flutter.jsp?uid=${IDController.text}&udelete=1');
-  var response = await http.get(url);
-  print(response.body);
-  var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
-  Map<String, dynamic> result = {};
-
-  if (dataConvertedJSON['result'] == 'OK') {
-    // 회원 삭제 성공 시 수행할 작업
-    Get.to(() => HomeWidget(onChangeTheme: widget.onChangeTheme,));
-  } else {
-    // 회원 삭제 실패 시 수행할 작업
-    // 에러 메시지를 표시하거나, 다른 동작을 수행할 수 있습니다.
+  userInfoUpdate() async {
+    var url = Uri.parse(
+        'http://localhost:8080/Flutter/dateapp_user_update_flutter.jsp?uid=${IDController.text}&unickname=${NickNameController.text}&uaddress=${AddressController.text}');
+    var response = await http.get(url);
+    print(response.body);
+    var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+    Map<String, dynamic> result = {};
+    if (dataConvertedJSON['results'] != null &&
+        dataConvertedJSON['results'].isNotEmpty) {
+      result = dataConvertedJSON['results'][0];
+    } // Map으로 변경
+    if (!RegExp(r'^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9]).{8,15}$')
+        .hasMatch(PWController.text)) {
+      Get.snackbar(
+        "Error",
+        '비밀번호는 영문 대소문자, 숫자를 혼합하여 8~15자여야 합니다.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+        backgroundColor: Color.fromARGB(255, 232, 157, 157),
+      );
+    } else if (PWController.text != PWCheckController.text) {
+      Get.snackbar(
+        "Error",
+        '비밀번호가 일치하지 않습니다.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+        backgroundColor: Color.fromARGB(255, 232, 157, 157),
+      );
+    } else {
+      updateShowDialog();
+    }
   }
-}
 
+  updateShowDialog() {
+    Get.defaultDialog(
+      title: '회원정보 수정',
+      middleText: '회원정보가 수정되었습니다.',
+      backgroundColor: Color.fromARGB(255, 59, 160, 237),
+      barrierDismissible: false,
+      actions: [
+        TextButton(
+          onPressed: () {
+            Get.to(() => HomeWidget(
+                  onChangeTheme: widget.onChangeTheme,
+                ));
+          },
+          child: Text('확인'),
+        ),
+      ],
+    );
+  }
+
+  userDelete() async {
+    var url = Uri.parse(
+        'http://localhost:8080/Flutter/dateapp_user_delete_flutter.jsp?uid=${IDController.text}&udelete=1');
+    var response = await http.get(url);
+    print(response.body);
+    var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+    Map<String, dynamic> result = {};
+
+    if (dataConvertedJSON['result'] == 'OK') {
+      // 회원 삭제 성공 시 수행할 작업
+      Get.to(() => HomeWidget(
+            onChangeTheme: widget.onChangeTheme,
+          ));
+    } else {
+      // 회원 삭제 실패 시 수행할 작업
+      // 에러 메시지를 표시하거나, 다른 동작을 수행할 수 있습니다.
+    }
+  }
 }

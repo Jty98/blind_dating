@@ -26,7 +26,11 @@ class PayMentsWidget extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Get.back();
-                  Get.to(() => HomeWidget(onChangeTheme: onChangeTheme,));
+                  Get.offAll(
+                      () => HomeWidget(
+                            onChangeTheme: onChangeTheme,
+                          ),
+                      transition: Transition.noTransition);
                   // Get.back();
                 },
                 child: const Text("확인"),

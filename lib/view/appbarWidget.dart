@@ -6,7 +6,7 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
   const AppbarWidget({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
+  Size get preferredSize => const Size.fromHeight(60);
 
   @override
   Widget build(BuildContext context) {
@@ -20,19 +20,29 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
           if (snapshot.hasData) {
             List? loginData = snapshot.data?[0]; // 로그인된 유저의 데이터
             loginData?[0]['unickname'];
-            String grantMark = loginData?[0]['ugrant'] == 1 ? "Premium🏅" : "남은 채팅횟수: ${loginData?[0]['uchatcount']}";
+            String grantMark = loginData?[0]['ugrant'] == 1
+                ? "Premium🏅"
+                : "남은 채팅횟수: ${loginData?[0]['uchatcount']}";
 
             // print("로그인된 앱바 유저닉네임: $unickname");
             return AppBar(
-              title: const Text(
-                "소🐶팅",
+              title:
+                  // Image.asset('images/반갑개Logo수정.jpeg',
+                  //   width: 60,
+                  //   height: 60,
+                  // ),
+                  const Text(
+                "반갑개",
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
+              centerTitle: true,
               actions: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(5, 0, 10, 0),
-                  child: Text(grantMark,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  child: Text(
+                    grantMark,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 // 여기서 불러오고 싶은거 불러오면 됨 loginData[0]['unickname'] 하면 유저 닉네임 불러와짐

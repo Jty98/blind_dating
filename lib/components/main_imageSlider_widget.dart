@@ -1,8 +1,10 @@
 // ignore_for_file: file_names
 
 import 'package:blind_dating/model/sliderItems_model.dart';
+import 'package:blind_dating/model/user.dart';
 import 'package:blind_dating/viewmodel/indicatorCurrent_crtl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -53,17 +55,19 @@ class CarouselSliderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     print("userInfoList: $userInfoList");
     return CarouselSlider(
       carouselController: controller,
       items: userInfoList.map((item) {
+        // loadImage();
         return Stack(
           children: [
             SizedBox(
               // 이미지 크기
               width: MediaQuery.of(context).size.width, // 화면 최대 넓이
               height: 510,
-              child: Image.network(item.userMainImagePath, fit: BoxFit.cover),
+              child: Image.network(item.userMainImagePath, fit: BoxFit.cover, headers: {'uid' : '${item.userId}'},),
             ),
             Center(
               child: Container(
@@ -147,7 +151,26 @@ class CarouselSliderWidget extends StatelessWidget {
       ),
     );
   }
-}
+  // --- Functions ---
+//   void loadImage(SliderlItems item) async {
+//   // 현재 사용자 가져오기
+//   User? user = FirebaseAuth.instance.currentUser;
+
+//   if (user != null) {
+//     // 사용자의 UID를 가져와서 URL에 추가
+//     String uid = user.uid;
+//     item.userMainImagePath;
+//     String imageUrl = 'https://firebasestorage.googleapis.com/v0/b/blinddating-174ee.appspot.com/o/user%2Fprofile%2F$uid_profile_1?alt=media';
+
+//     // Image.network로 이미지 로드
+//     Image.network(imageUrl, fit: BoxFit.cover);
+//   } else {
+//     // 사용자가 인증되지 않았을 때의 처리
+//     print('사용자가 인증되지 않았습니다.');
+//   }
+// }
+
+} // End
 
 // indicator를 담당하는 위젯
 class CarouselIndicator extends StatelessWidget {

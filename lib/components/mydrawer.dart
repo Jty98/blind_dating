@@ -16,6 +16,7 @@ class MyDrawer extends StatelessWidget {
     final LoadUserData loadUserDataController = Get.put(LoadUserData());
     final HomeController homeController = Get.put(HomeController());
     String userFacePath = "";
+    String loginNickName = "";
 
     getLoginData(loadUserDataController, userFacePath);
     // UserModel.setImageURL();
@@ -28,21 +29,32 @@ class MyDrawer extends StatelessWidget {
           UserAccountsDrawerHeader(
             currentAccountPicture: CircleAvatar(
               backgroundImage: CachedNetworkImageProvider(UserModel.imageURL),
+              radius: 100,
             ),
             accountName: Text(
-              '퍼그',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              loadUserDataController.loginData[0]['unickname'],
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onTertiary,
+              ),
             ),
             accountEmail: Text(
-              'very@cute.com',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              '닮은견종: ${loadUserDataController.loginData[0]['ubreed']}',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onTertiary,
+              ),
             ),
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 69, 135, 249),
+              color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
           ListTile(
-            onTap: () => Get.to(() => Profile(onChangeTheme: onChangeTheme,)),
+            onTap: () => Get.to(() => Profile(
+                  onChangeTheme: onChangeTheme,
+                )),
             leading: const Icon(
               Icons.person,
               // color: Theme.of(context).colorScheme.secondary,
@@ -60,9 +72,11 @@ class MyDrawer extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       // UserModel.clearAllProperties();
-                      Get.to(() => Login(
-                            onChangeTheme: onChangeTheme,
-                          ));
+                      Get.offAll(
+                          () => Login(
+                                onChangeTheme: onChangeTheme,
+                              ),
+                          transition: Transition.noTransition);
                     },
                     child: const Text(
                       '확인',
@@ -100,7 +114,7 @@ class MyDrawer extends StatelessWidget {
               onTap: () {
                 homeController.thmeStatus.value =
                     !homeController.thmeStatus.value;
-                    homeController.thmeStatus.value 
+                homeController.thmeStatus.value
                     ? onChangeTheme(ThemeMode.dark)
                     : onChangeTheme(ThemeMode.light);
               },
