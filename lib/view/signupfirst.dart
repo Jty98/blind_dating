@@ -108,7 +108,7 @@ class _SignUpFirstState extends State<SignUpFirst> {
                           Icons.person,
                           color: Color.fromARGB(255, 88, 104, 126),
                         )),
-                    readOnly: true,
+                    // readOnly: true,
                   ),
                 ),
                 Padding(

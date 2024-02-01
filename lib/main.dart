@@ -1,11 +1,5 @@
 import 'package:blind_dating/firebase_options.dart';
-import 'package:blind_dating/home.dart';
 import 'package:blind_dating/view/login.dart';
-import 'package:blind_dating/view/phone_numbers_creen.dart';
-import 'package:blind_dating/view/test_login.dart';
-import 'package:blind_dating/viewmodel/chat_controller.dart';
-import 'package:blind_dating/viewmodel/chat_request.dart';
-import 'package:blind_dating/viewmodel/firebase_messages.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

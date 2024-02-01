@@ -1,6 +1,7 @@
 import 'package:blind_dating/homewidget.dart';
 import 'package:blind_dating/model/user.dart';
 import 'package:blind_dating/view/profile.dart';
+import 'package:blind_dating/view/signupfirst.dart';
 import 'package:blind_dating/viewmodel/loadUserData_ctrl.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,17 +17,14 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-
 class _LoginState extends State<Login> with WidgetsBindingObserver {
   late AppLifecycleState _lastLifeCycleState;
   late TextEditingController IDController;
   late TextEditingController PWController;
   late String inputValue;
 
-    // 유저와 관련된 getX
+  // 유저와 관련된 getX
   final LoadUserData userDataController = Get.put(LoadUserData());
-
-
 
   @override
   void initState() {
@@ -41,7 +39,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
     _initSharedPreferences();
   }
 
-    @override
+  @override
   void dispose() {
     _disposeSharedPreferences();
     super.dispose();
@@ -68,7 +66,6 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
     _lastLifeCycleState = state;
     super.didChangeAppLifecycleState(state);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -134,8 +131,22 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                     minimumSize: Size(350, 50),
                     backgroundColor: Color.fromARGB(255, 141, 148, 244),
                     foregroundColor: Color.fromARGB(255, 245, 245, 245)),
-                child: Text(
+                child: const Text(
                   "로그인",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              ElevatedButton(
+                onPressed: () => Get.to(() => SignUpFirst(onChangeTheme: widget.onChangeTheme)),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(350, 50),
+                    backgroundColor: Color.fromARGB(255, 141, 148, 244),
+                    foregroundColor: Color.fromARGB(255, 245, 245, 245)),
+                child: const Text(
+                  "회원가입",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               )
@@ -146,32 +157,35 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
     );
   }
 
-void loginCheck() async {
-  try {
-    var uid = IDController.text; // 사용자가 입력한 ID
-    var upw = PWController.text; // 사용자가 입력한 ID
-    var url = Uri.parse('http://localhost:8080/Flutter/dateapp_user_logincheck_flutter.jsp?uid=$uid&upw=$upw');
-    final resp = await http.get(url);
+  void loginCheck() async {
+    try {
+      var uid = IDController.text; // 사용자가 입력한 ID
+      var upw = PWController.text; // 사용자가 입력한 ID
+      var url = Uri.parse(
+          'http://localhost:8080/Flutter/dateapp_user_logincheck_flutter.jsp?uid=$uid&upw=$upw');
+      final resp = await http.get(url);
 
-    String responseData = resp.body.trim(); // JSP 페이지로부터의 응답을 문자열로 받음
+      String responseData = resp.body.trim(); // JSP 페이지로부터의 응답을 문자열로 받음
 
-  print('responseData : ${responseData}');
-    if (responseData == '1') {
-      Get.to(() => HomeWidget(onChangeTheme: widget.onChangeTheme,));
-      _saveSharePreferencese(); // Get.to() 이후에 호출
-    } else {
-      Get.snackbar(
-        "ERROR",
-        "아이디나 비밀번호를 다시 확인해주세요.",
-        snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 2),
-        backgroundColor: Color.fromARGB(255, 156, 161, 189),
-      );
+      print('responseData : ${responseData}');
+      if (responseData == '1') {
+        Get.to(() => HomeWidget(
+              onChangeTheme: widget.onChangeTheme,
+            ));
+        _saveSharePreferencese(); // Get.to() 이후에 호출
+      } else {
+        Get.snackbar(
+          "ERROR",
+          "아이디나 비밀번호를 다시 확인해주세요.",
+          snackPosition: SnackPosition.BOTTOM,
+          duration: Duration(seconds: 2),
+          backgroundColor: Color.fromARGB(255, 156, 161, 189),
+        );
+      }
+    } catch (error) {
+      print('Error occurred while checking UID: $error');
     }
-  } catch (error) {
-    print('Error occurred while checking UID: $error');
   }
-}
 
   // 초기 id, pw를 Textfiled에서 가져와서 key값 uid, vlaue값 idText.text으로 구성되게 해줌
   _initSharedPreferences() async {

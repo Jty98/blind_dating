@@ -1,147 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:blind_dating/homewidget.dart';
 import 'package:blind_dating/view/signupthird.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:blind_dating/model/user.dart';
 
 
-//image를 flask로 보내는 함수
-// Future<String> uploadImage(XFile? imageFile) async {
-//   final Uri uri = Uri.parse('http://ec2-52-78-36-96.ap-northeast-2.compute.amazonaws.com:5000/upload');
-//   final http.MultipartFile file = await http.MultipartFile.fromPath('image', imageFile!.path);
-//   final http.Request request = (http.MultipartRequest('POST', uri)..files.add(file)) as http.Request;
-//   final http.StreamedResponse response = await request.send();
-//   if (response.statusCode == 200) {
-//     final Map<String, dynamic> responseBody = json.decode(await response.stream.bytesToString());
-//     return responseBody['results']; 
-//   } else {
-//     throw Exception('Failed to upload image');
-//   }
-// }
-//2차수정
-// Future<String> uploadImage(XFile? imageFile) async {
-//   if (imageFile == null) {
-//     throw Exception('No image provided');
-//   }
-  
-//   final Uri uri = Uri.parse('http://ec2-52-78-36-96.ap-northeast-2.compute.amazonaws.com:5000/upload');
-//   final http.MultipartFile file = await http.MultipartFile.fromPath('image', imageFile.path);
-
-//   final http.MultipartRequest request = http.MultipartRequest('POST', uri);
-//   request.files.add(file);
-
-//   final http.StreamedResponse response = await request.send();
-
-//   if (response.statusCode == 200) {
-//     final Map<String, dynamic> responseBody = json.decode(await response.stream.bytesToString());
-//     return responseBody['results']; 
-//   } else {
-//     throw Exception('Failed to upload image');
-//   }
-// }
-
-//3차수정
-// Future<String?> uploadImage(XFile? imageFile) async {
-//   if (imageFile == null) {
-//     throw Exception('No image provided');
-//   }
-  
-//   final Uri uri = Uri.parse('http://ec2-52-78-36-96.ap-northeast-2.compute.amazonaws.com:5000/upload');
-//   final http.MultipartFile file = await http.MultipartFile.fromPath('image', imageFile.path);
-
-//   final http.MultipartRequest request = http.MultipartRequest('POST', uri);
-//   request.files.add(file);
-
-//   final http.StreamedResponse response = await request.send();
-
-
-//   print(response.stream);
-//   // if (response.statusCode == 200) {
-//   //   final Map<String, dynamic> responseBody = json.decode(await response.stream.bytesToString());
-//   //   // return responseBody['results']; 
-//   //   return json.encode(responseBody);
-
-//   // } else {
-//   //   throw Exception('Failed to upload image');
-//   // }
-//   if (response.statusCode == 200) {
-//     final Map<String, dynamic> responseBody = json.decode(await response.stream.bytesToString());
-    
-//     String? resultDogType;
-//     responseBody.forEach((key, value) {
-//       if (value == '100.00%') {
-//         resultDogType = key;
-//       }
-//   });
-  
-//     if (resultDogType != null) {
-//       return resultDogType;
-//     } else {
-//       throw Exception('No dog type matched 100.00%');
-//     }
-//   } else {
-//     throw Exception('Failed to upload image');
-//   }
-
-// }
-
-//4차수정
-Future<String?> uploadImage(XFile? imageFile) async {
-  if (imageFile == null) {
-    throw Exception('No image provided');
-  }
-
-  final Uri uri = Uri.parse('http://ec2-52-78-36-96.ap-northeast-2.compute.amazonaws.com:5000/upload');
-  final http.MultipartFile file = await http.MultipartFile.fromPath('image', imageFile.path);
-
-  final http.MultipartRequest request = http.MultipartRequest('POST', uri);
-  request.files.add(file);
-
-  final http.StreamedResponse response = await request.send();
-
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> responseBody = json.decode(await response.stream.bytesToString());
-
-    String? resultDogType;
-    responseBody.forEach((key, value) {
-      if (double.parse(value.replaceAll('%', '')) >= 90.0) {
-        resultDogType = key;
-      }
-    });
-
-    if (resultDogType != null) {
-      // 반환된 강아지 종류를 user.dart의 ubreed 변수에 저장합니다.
-      UserModel.ubreed = resultDogType!;
-
-      // 반환된 강아지 종류의 이름에 해당하는 .png 이미지 경로를 user.dart의 udogimg 변수에 저장합니다.
-      // 이미지의 경로는 프로젝트의 구조에 따라 적절히 수정해야 합니다.
-      UserModel.udogimg = 'path_to_images/$resultDogType.png';
-
-      return resultDogType;
-    } else {
-      throw Exception('No dog type matched 100.00%');
-    }
-  } else {
-    throw Exception('Failed to upload image');
-  }
-}
-
-
-Stream<String> waitingTextStream() async* {
-  int count = 0;
-  while (true) {
-    await Future.delayed(Duration(milliseconds: 500));
-    count = (count + 1) % 4;  // 0, 1, 2, 3 순서로 반복
-    String dots = '.' * count;
-    yield '결과를 기다리는중$dots';
-  }
-}
+// final Uri uri = Uri.parse('http://ec2-52-78-36-96.ap-northeast-2.compute.amazonaws.com:5000/upload');
+///image를 flask로 보내는 함수
 
 class SignUpSecond extends StatefulWidget {
   final Function(ThemeMode) onChangeTheme;
@@ -152,8 +20,6 @@ class SignUpSecond extends StatefulWidget {
 }
 
 
-
-
 class _SignUpSecondState extends State<SignUpSecond> {
   XFile? _photoImage;
   XFile? _galleryImage;
@@ -161,6 +27,54 @@ class _SignUpSecondState extends State<SignUpSecond> {
   final ImagePicker picker = ImagePicker();
   String? dogTypeResult; // 강아지 종류를 저장하는 변수
   bool isButtonPressed = false; // 버튼이 눌렸는지 여부
+
+  Future<String?> uploadImage(XFile? imageFile) async {
+  if (imageFile == null) {
+    throw Exception('No image provided');
+  }
+
+  final Uri uri = Uri.parse('http://127.0.0.1:5000/predict');
+
+  // POST 메서드를 사용하도록 수정
+  final http.MultipartRequest request = http.MultipartRequest('POST', uri);
+  request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+
+  try {
+    final http.StreamedResponse response = await request.send();
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> responseBody = json.decode(await response.stream.bytesToString());
+
+      // 처리된 JSON 결과 사용
+      print(responseBody);
+      responseBody[0].breed = dogTypeResult;
+      print('결과: $dogTypeResult');
+
+      // 여기서 결과를 사용하도록 수정
+
+
+    } else {
+      throw Exception('Failed to upload image');
+    }
+  } catch (e) {
+    print('Error: $e');
+    throw Exception('Failed to upload image');
+  }
+  return null;
+}
+
+
+Stream<String> waitingTextStream() async* {
+  int count = 0;
+  while (true) {
+    await Future.delayed(const Duration(milliseconds: 500));
+    count = (count + 1) % 4;  // 0, 1, 2, 3 순서로 반복
+    String dots = '.' * count;
+    yield '결과를 기다리는중$dots';
+  }
+}
+
 
 
   Future getImage(ImageSource imageSource) async {
