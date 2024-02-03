@@ -1,77 +1,24 @@
 import 'package:blind_dating/homewidget.dart';
 import 'package:blind_dating/model/user.dart';
 import 'package:blind_dating/view/signupsecond.dart';
+import 'package:blind_dating/viewmodel/signup_ctrl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/route_manager.dart';
 
-class SignUpFirst extends StatefulWidget {
+class SignUpFirst extends StatelessWidget {
   final Function(ThemeMode) onChangeTheme;
   const SignUpFirst({super.key, required this.onChangeTheme});
 
   @override
-  State<SignUpFirst> createState() => _SignUpFirstState();
-}
-
-class _SignUpFirstState extends State<SignUpFirst> {
-  late TextEditingController IDController;
-  late TextEditingController PWController;
-  late TextEditingController PWCheckController;
-  late TextEditingController AddressController;
-  late TextEditingController NickNameController;
-  late String inputValue;
-  String selectedGender = "";
-
-  @override
-  void initState() {
-    super.initState();
-    IDController = TextEditingController(text: UserModel.uid);
-    // IDController = TextEditingController(text: "01036488391");
-    PWController = TextEditingController();
-    PWCheckController = TextEditingController();
-    AddressController = TextEditingController();
-    NickNameController = TextEditingController();
-    inputValue = "";
-  }
-  
-
-  DateTime dateTime = DateTime(2000, 1, 1);
-
-  void saveDataToUserModel() {
-    UserModel.uid = IDController.text;
-    UserModel.upw = PWController.text;
-    UserModel.uaddress = AddressController.text;
-    UserModel.unickname = NickNameController.text;
-    UserModel.ugender = (selectedGender == "Male") ? '0' : '1';
-    UserModel.ubirth =
-        '${dateTime.year}-${dateTime.month}-${dateTime.day}'; // 저장된 생년월일 값
-
-      print('id: ${UserModel.uid}');
-      print('upw: ${UserModel.upw}');
-      print('unickname: ${UserModel.unickname}');
-      print('ugender: ${UserModel.ugender}');
-      print('ubirth: ${UserModel.ubirth}');
-      print('uaddress: ${UserModel.uaddress}');
-    
-  }
-
-
-  void showSnackBar(String message) {
-    Get.snackbar(
-      "ERROR",
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      duration: Duration(seconds: 2),
-      backgroundColor: Color.fromARGB(255, 232, 157, 157),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final SignUpController signUpController = Get.put(SignUpController());
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Sign Up',
           style: TextStyle(
               fontSize: 20,
@@ -79,10 +26,8 @@ class _SignUpFirstState extends State<SignUpFirst> {
               fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Get.back(); // Get 패키지를 사용하여 이전 페이지로 이동합니다.
-          },
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Get.back(),
         ),
       ),
       body: GestureDetector(
@@ -94,176 +39,133 @@ class _SignUpFirstState extends State<SignUpFirst> {
             child: Column(
               children: [
                 Image.asset('images/stepfirst.png'),
-                SizedBox(
+                const SizedBox(
                   height: 15,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    style: TextStyle(fontSize: 16),
-                    controller: IDController,
-                    decoration: const InputDecoration(
-                        hintText: '아이디',
-                        prefixIcon: Icon(
-                          Icons.person,
-                          color: Color.fromARGB(255, 88, 104, 126),
-                        )),
-                    // readOnly: true,
-                  ),
+                showTextField(
+                  signUpController: signUpController,
+                  textController: signUpController.iDController,
+                  getIcon: Icons.person,
+                  hintText: '아이디',
+                  passwordKey: false,
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
-                  child: TextField(
-                      style: TextStyle(fontSize: 16),
-                      controller: NickNameController,
-                      decoration: const InputDecoration(
-                          hintText: '닉네임',
-                          prefixIcon: Icon(
-                            Icons.person_add_alt_1,
-                            color: Color.fromARGB(255, 88, 104, 126),
-                          )),
-                      keyboardType: TextInputType.text,
-                      onSubmitted: (value) {
-                        inputValue = NickNameController.text;
-                      }),
+                showTextField(
+                  signUpController: signUpController,
+                  textController: signUpController.pWController,
+                  getIcon: Icons.lock,
+                  hintText: '비밀번호',
+                  passwordKey: true,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    style: TextStyle(fontSize: 18),
-                    controller: PWController,
-                    decoration: const InputDecoration(
-                        labelText: "비밀번호",
-                        prefixIcon: Icon(
-                          Icons.lock,
-                          color: Color.fromARGB(255, 88, 114, 126),
-                        )),
-                    keyboardType: TextInputType.text,
-                    onSubmitted: (value) {
-                      inputValue = PWController.text;
-                    },
-                    obscureText: true,
-                  ),
+                showTextField(
+                  signUpController: signUpController,
+                  textController: signUpController.pWCheckController,
+                  getIcon: Icons.lock,
+                  hintText: '비밀번호 확인',
+                  passwordKey: true,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    style: TextStyle(fontSize: 18),
-                    controller: PWCheckController,
-                    decoration: const InputDecoration(
-                        labelText: "비밀번호 확인",
-                        prefixIcon: Icon(
-                          Icons.lock,
-                          color: Color.fromARGB(255, 88, 114, 126),
-                        )),
-                    keyboardType: TextInputType.text,
-                    onSubmitted: (value) {
-                      inputValue = PWCheckController.text;
-                    },
-                    obscureText: true,
-                  ),
-                ),
-                Text(
+                const Text(
                   '비밀번호는 영문 대소문자, 숫자를 혼합하여 8~15자로 입력해 주세요.',
                   style: TextStyle(fontSize: 12),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
-                  child: TextField(
-                      style: TextStyle(fontSize: 16),
-                      controller: AddressController,
-                      decoration: const InputDecoration(
-                          hintText: '주소',
-                          prefixIcon: Icon(
-                            Icons.home,
-                            color: Color.fromARGB(255, 88, 104, 126),
-                          )),
-                      keyboardType: TextInputType.text,
-                      onSubmitted: (value) {
-                        inputValue = AddressController.text;
-                      }),
+                showTextField(
+                  signUpController: signUpController,
+                  textController: signUpController.nickNameController,
+                  getIcon: Icons.person_add_alt_1,
+                  hintText: '닉네임',
+                  passwordKey: false,
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 110, 20),
+                showTextField(
+                  signUpController: signUpController,
+                  textController: signUpController.addressController,
+                  getIcon: Icons.home,
+                  hintText: '주소',
+                  passwordKey: true,
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 110, 20),
                   child: Text(
                     "주소는 '광역시도-시군구'까지만 입력해 주세요.",
                     style: TextStyle(fontSize: 12),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 0, 30, 0),
-                      child: Text(
-                        '성별',
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Color.fromARGB(255, 54, 54, 58),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: TextButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            selectedGender = "Male";
-                          });
-                        },
-                        style: TextButton.styleFrom(
-                            minimumSize: Size(120, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            backgroundColor: selectedGender == "Male"
-                                ? Color.fromARGB(255, 255, 238, 150)
-                                : Color.fromARGB(255, 239, 238, 238),
-                            foregroundColor: Color.fromARGB(255, 80, 100, 144)),
-                        icon: Icon(Icons.man),
-                        label: Text(
-                          'Male',
+                Obx(
+                  () => Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(18, 0, 30, 0),
+                        child: Text(
+                          '성별',
                           style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
+                              fontSize: 16,
+                              color: Color.fromARGB(255, 54, 54, 58),
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-                      child: TextButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            selectedGender = "Female";
-                          });
-                        },
-                        style: TextButton.styleFrom(
-                            minimumSize: Size(120, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            backgroundColor: selectedGender == "Female"
-                                ? Color.fromARGB(255, 255, 238, 150)
-                                : Color.fromARGB(255, 239, 238, 238),
-                            foregroundColor: Color.fromARGB(255, 80, 100, 144)),
-                        icon: Icon(Icons.woman),
-                        label: Text(
-                          'Female',
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                        child: TextButton.icon(
+                          onPressed: () {
+                            signUpController.selectedGender.value = "Male";
+                          },
+                          style: TextButton.styleFrom(
+                              minimumSize: const Size(120, 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: signUpController
+                                          .selectedGender.value ==
+                                      "Male"
+                                  ? const Color.fromARGB(255, 255, 238, 150)
+                                  : const Color.fromARGB(255, 239, 238, 238),
+                              foregroundColor:
+                                  const Color.fromARGB(255, 80, 100, 144)),
+                          icon: const Icon(Icons.man),
+                          label: const Text(
+                            'Male',
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                        child: TextButton.icon(
+                          onPressed: () {
+                            signUpController.selectedGender.value = "Female";
+                          },
+                          style: TextButton.styleFrom(
+                              minimumSize: const Size(120, 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: signUpController
+                                          .selectedGender.value ==
+                                      "Female"
+                                  ? const Color.fromARGB(255, 255, 238, 150)
+                                  : const Color.fromARGB(255, 239, 238, 238),
+                              foregroundColor:
+                                  const Color.fromARGB(255, 80, 100, 144)),
+                          icon: const Icon(Icons.woman),
+                          label: const Text(
+                            'Female',
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 35,
                 ),
                 Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 0, 15, 0),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(18, 0, 15, 0),
                       child: Text(
                         '생년월일',
                         style: TextStyle(
@@ -272,64 +174,51 @@ class _SignUpFirstState extends State<SignUpFirst> {
                             fontWeight: FontWeight.bold),
                       ),
                     ),
+                    // Obx( ()
+                    //   =>
                     CupertinoButton(
-                      color: Color.fromARGB(255, 150, 170, 189),
-                      child: Text(
-                          '${dateTime.year}-${dateTime.month}-${dateTime.day}'),
+                      color: const Color.fromARGB(255, 150, 170, 189),
+                      child: Obx(
+                        () => Text(
+                            '${DateTime.parse(signUpController.dateTime.value).year}-${DateTime.parse(signUpController.dateTime.value).month}-${DateTime.parse(signUpController.dateTime.value).day}'),
+                      ),
                       onPressed: () {
                         showCupertinoModalPopup(
                             context: context,
                             builder: (BuildContext context) => SizedBox(
                                   height: 550,
                                   child: CupertinoDatePicker(
+                                    
                                     backgroundColor: const Color.fromARGB(
                                         255, 255, 255, 255),
-                                    initialDateTime: dateTime,
+                                    initialDateTime: DateTime.parse(
+                                        signUpController.dateTime.value),
                                     onDateTimeChanged: (DateTime newTime) {
-                                      setState(() => dateTime = newTime);
+                                      signUpController.dateTime.value =
+                                          newTime.toString();
                                     },
+                                    
                                     use24hFormat: true,
                                     mode: CupertinoDatePickerMode.date,
                                   ),
                                 ));
                       },
                     ),
+                    // ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 35,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15, 25, 15, 20),
                   child: ElevatedButton(
                     onPressed: () {
-                          if (IDController.text.isEmpty ||
-                          PWController.text.isEmpty ||
-                          PWCheckController.text.isEmpty ||
-                          AddressController.text.isEmpty ||
-                          NickNameController.text.isEmpty ||
-                          selectedGender.isEmpty) {
-                          Get.snackbar(
-                          "ERROR",
-                          "모든 항목을 입력해 주세요.",
-                          snackPosition: SnackPosition.BOTTOM,
-                          duration: Duration(seconds: 2),
-                          backgroundColor: Color.fromARGB(255, 247, 228, 162),
-                        );
-                          }else if (!RegExp(r'^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9]).{8,15}$')
-                            .hasMatch(PWController.text)) {
-                              showSnackBar('비밀번호는 영문 대소문자, 숫자를 혼합하여 8~15자여야 합니다.');
-                            } else if (PWController.text !=
-                                PWCheckController.text) {
-                              showSnackBar('비밀번호가 일치하지 않습니다.');
-                              } else {
-                              saveDataToUserModel();
-                              Get.to(() => SignUpSecond(onChangeTheme: widget.onChangeTheme,));
-                              }
+                      checkLogin(signUpController: signUpController);
                     },
                     style: ElevatedButton.styleFrom(
-                      minimumSize: Size(400, 50),
-                      backgroundColor: Color.fromARGB(255, 146, 148, 255),
+                      minimumSize: const Size(400, 50),
+                      backgroundColor: const Color.fromARGB(255, 146, 148, 255),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -350,4 +239,74 @@ class _SignUpFirstState extends State<SignUpFirst> {
       ),
     );
   }
-}
+  // --- Functions ---
+
+  /// 회원가입 조건 미충족시 나오는 스낵바
+  showSnackBar(String message) {
+    Get.snackbar(
+      "ERROR",
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+      backgroundColor: const Color.fromARGB(255, 232, 157, 157),
+    );
+  }
+
+  /// 회원가입 유효성 체크하는 함수
+  checkLogin({required SignUpController signUpController}) {
+    if (signUpController.iDController.text.isEmpty ||
+        signUpController.pWController.text.isEmpty ||
+        signUpController.pWCheckController.text.isEmpty ||
+        signUpController.addressController.text.isEmpty ||
+        signUpController.nickNameController.text.isEmpty ||
+        signUpController.selectedGender.isEmpty) {
+      Get.snackbar(
+        "ERROR",
+        "모든 항목을 입력해 주세요.",
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+        backgroundColor: const Color.fromARGB(255, 247, 228, 162),
+      );
+    } else if (!RegExp(r'^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9]).{8,15}$')
+        .hasMatch(signUpController.pWController.text)) {
+      showSnackBar('비밀번호는 영문 대소문자, 숫자를 혼합하여 8~15자여야 합니다.');
+    } else if (signUpController.pWController.text !=
+        signUpController.pWCheckController.text) {
+      showSnackBar('비밀번호가 일치하지 않습니다.');
+    } else {
+      signUpController.saveDataToUserModel();
+      Get.to(() => SignUpSecond(
+            onChangeTheme: onChangeTheme,
+          ));
+    }
+  }
+
+  /// 중복되는 텍스트필드 위젯
+  showTextField({
+    required SignUpController signUpController,
+    required TextEditingController textController,
+    required IconData getIcon,
+    required String hintText,
+    required bool passwordKey,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: TextField(
+        style: const TextStyle(fontSize: 16),
+        controller: textController,
+        decoration: InputDecoration(
+            hintText: hintText,
+            prefixIcon: Icon(
+              getIcon,
+              color: const Color.fromARGB(255, 88, 104, 126),
+            )),
+        // readOnly: true,
+        // keyboardType: TextInputType.text,
+        onSubmitted: (value) {
+          signUpController.inputValue = textController.text;
+        },
+        obscureText: passwordKey,
+      ),
+    );
+  }
+} // End

@@ -1,349 +1,265 @@
-import 'dart:convert';
 import 'dart:io';
+import 'package:blind_dating/components/ai_result_chart.dart';
 import 'package:blind_dating/view/signupthird.dart';
+import 'package:blind_dating/viewmodel/signup_ctrl.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
-
 
 // final Uri uri = Uri.parse('http://ec2-52-78-36-96.ap-northeast-2.compute.amazonaws.com:5000/upload');
-///image를 flask로 보내는 함수
 
-class SignUpSecond extends StatefulWidget {
+class SignUpSecond extends StatelessWidget {
   final Function(ThemeMode) onChangeTheme;
   const SignUpSecond({Key? key, required this.onChangeTheme}) : super(key: key);
 
   @override
-  State<SignUpSecond> createState() => _SignUpSecondState();
-}
-
-
-class _SignUpSecondState extends State<SignUpSecond> {
-  XFile? _photoImage;
-  XFile? _galleryImage;
-  bool hasReceivedResult = false; //모델결과값 받아오기 전까지는 다음버튼 비활성화
-  final ImagePicker picker = ImagePicker();
-  String? dogTypeResult; // 강아지 종류를 저장하는 변수
-  bool isButtonPressed = false; // 버튼이 눌렸는지 여부
-
-  Future<String?> uploadImage(XFile? imageFile) async {
-  if (imageFile == null) {
-    throw Exception('No image provided');
-  }
-
-  final Uri uri = Uri.parse('http://127.0.0.1:5000/predict');
-
-  // POST 메서드를 사용하도록 수정
-  final http.MultipartRequest request = http.MultipartRequest('POST', uri);
-  request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
-
-  try {
-    final http.StreamedResponse response = await request.send();
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> responseBody = json.decode(await response.stream.bytesToString());
-
-      // 처리된 JSON 결과 사용
-      print(responseBody);
-      responseBody[0].breed = dogTypeResult;
-      print('결과: $dogTypeResult');
-
-      // 여기서 결과를 사용하도록 수정
-
-
-    } else {
-      throw Exception('Failed to upload image');
-    }
-  } catch (e) {
-    print('Error: $e');
-    throw Exception('Failed to upload image');
-  }
-  return null;
-}
-
-
-Stream<String> waitingTextStream() async* {
-  int count = 0;
-  while (true) {
-    await Future.delayed(const Duration(milliseconds: 500));
-    count = (count + 1) % 4;  // 0, 1, 2, 3 순서로 반복
-    String dots = '.' * count;
-    yield '결과를 기다리는중$dots';
-  }
-}
-
-
-
-  Future getImage(ImageSource imageSource) async {
-    
-    final XFile? pickedFile = await picker.pickImage(source: imageSource);
-    if (pickedFile != null) {
-      if (imageSource == ImageSource.camera) {
-        setState(() {
-          _photoImage = pickedFile;
-        });
-      } else {
-        setState(() {
-          _galleryImage = pickedFile;
-        });
-      }
-    }
-  }
-
-  Widget _buildGalleryButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton.icon(
-            onPressed: () {
-              getImage(ImageSource.gallery);
-            },
-            style: TextButton.styleFrom(
-                minimumSize: Size(130, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: Color.fromARGB(255, 152, 175, 250),
-                foregroundColor: Color.fromARGB(255, 234, 234, 236)),
-            icon: Icon(Icons.photo),
-            label: Text(
-              "갤러리",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            )),
-            SizedBox(width: 20), // 간격을 위해 추가한 코드
-      ElevatedButton.icon(
-      onPressed: () async {
-    if (_galleryImage == null) {
-      // TODO: 사용자에게 이미지가 선택되지 않았음을 알리는 메시지 표시
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('에러'),
-          content: Text('이미지가 선택되지 않았습니다\n 이미지를 선택해서 "닮은 강아지 찾기"를 눌러주세요'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('확인'),
-            ),
-          ],
-        ),
-      );
-      return;
-    } else {
-      setState(() {
-        hasReceivedResult = false;
-        isButtonPressed = true; // 이미지가 선택되었을 때만 버튼이 눌렸다고 표시
-      });
-
-      try {
-        dogTypeResult = await uploadImage(_galleryImage); // 결과를 dogTypeResult에 저장
-
-        if (dogTypeResult != null) {
-          // 결과 팝업을 띄우는 코드
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('결과'),
-                content: Text('닮은 강아지 종류: $dogTypeResult'),
-                actions: <Widget>[
-                  TextButton(
-                    child: Text('확인'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        }
-
-        setState(() {
-          hasReceivedResult = true;
-        });
-      } catch (e) {
-        // TODO: 오류 메시지 표시
-        print("Error: $e");
-      }
-    }
-},
-
-          style: TextButton.styleFrom(
-              minimumSize: Size(130, 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              backgroundColor: Color.fromARGB(255, 152, 175, 250),
-              foregroundColor: Color.fromARGB(255, 234, 234, 236)),
-          icon: Icon(Icons.pets),
-          label: Text(
-            "닮은 강아지 찾기",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          )),
-      ],
-    );
-  }
-
-  
-
-  @override
   Widget build(BuildContext context) {
+    // final signUpController = Get.find<SignUpController>();
+    final SignUpController signUpController = Get.put(SignUpController());
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          '       사진을 등록하세요\n 닮은 강아지를 찾아줄게요',
+        title: const Text(
+          '닮은 견종 테스트',
           style: TextStyle(
             fontSize: 20,
             color: Color.fromRGBO(94, 88, 176, 0.945),
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Get.back();
-          },
-        ),
       ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Image.asset('images/stepsecond.png'),
-                // SizedBox(height: 35),
-                // _buildPhotoArea(),
-                SizedBox(height: 35),
-                // _buildButton(),
-                SizedBox(height: 25),
-                _buildGalleryArea(),
-                SizedBox(height: 25),
-                _buildGalleryButton(),
-                if (isButtonPressed && !hasReceivedResult) 
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(vertical: 20),
-                //   child: Text('닮은 강아지: ${dogTypeResult ?? '결과를 기다리는 중...'}'),
-                // ),
-                StreamBuilder<String>(
-                  stream: waitingTextStream(),
-                  builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                    if (snapshot.hasData) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Text('닮은 강아지: ${dogTypeResult ?? snapshot.data}'),
-                      );
-                    }
-                    return SizedBox.shrink();  // 스트림에서 아직 데이터가 도착하지 않은 경우에 대한 위젯 (예: 로딩 인디케이터나 다른 위젯)
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Image.asset('images/stepsecond.png'),
+              const SizedBox(height: 55),
+              galleryAreaWidget(signUpController: signUpController),
+              const SizedBox(height: 25),
+              galleryButtonWidget(
+                  context: context, signUpController: signUpController),
+              Obx(
+                () => signUpController.resultBreedImg.value.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: 200,
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: 200,
+                          child: Column(
+                            children: [
+                              Image.asset(
+                                signUpController.resultBreedImg.value,
+                                width: 100,
+                                height: 100,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: Text(
+                                  '당신은 ${signUpController.resultPercent.value.toStringAsFixed(0)}% 확률로',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: Text(
+                                  "'${signUpController.dogTypeResult.value}'를 닮았습니다!",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15, 10, 15, 80),
+                child: ElevatedButton(
+                  onPressed: () {
+                    signUpController.resultMapList.isEmpty
+                        ? showErrorDialog(context, '테스트를 진행하지 않았습니다.')
+                        : Get.to(() => SignUpThird(
+                              onChangeTheme: onChangeTheme,
+                            ));
                   },
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 75, 15, 80),
-                  child: ElevatedButton(
-                    onPressed: hasReceivedResult ? () {
-                      Get.to(() => SignUpThird(onChangeTheme: widget.onChangeTheme,));
-                    } : null,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(400, 50),
-                      backgroundColor: Color.fromARGB(255, 146, 148, 255),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(400, 50),
+                    backgroundColor: const Color.fromARGB(255, 146, 148, 255),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Text(
-                      "다음",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 234, 234, 236),
-                      ),
+                  ),
+                  child: const Text(
+                    "다음",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 234, 234, 236),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-
-
-  Widget _buildPhotoArea() {
-    return _photoImage != null
-        ? Container(
-            width: 300,
-            height: 300,
-            child: Image.file(File(_photoImage!.path)),
-          )
-        : Container(
-            width: 300,
-            height: 300,
-            color: Color.fromARGB(255, 212, 221, 247),
-          );
+  /// 결과를 띄우는 다이얼로그
+  resultDialog(SignUpController signUpController) {
+    return Get.dialog(
+      Dialog(
+        child: SizedBox(
+          width: 400,
+          height: 400,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AIResultChart(signUpController: signUpController),
+              CupertinoButton.filled(
+                child: const Text("확인"),
+                onPressed: () => Get.back(),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  Widget _buildGalleryArea() {
-  return Stack(
-    children: [
-      _galleryImage != null
-          ? Container(
-              width: 300,
-              height: 300,
-              child: Image.file(File(_galleryImage!.path)),
-            )
-          : Container(
-              width: 300,
-              height: 300,
-              color: Color.fromARGB(255, 212, 221, 247),
+  /// 이미지 띄우는 공간의 위젯
+  Widget galleryAreaWidget({required SignUpController signUpController}) {
+    return Obx(
+      () => Stack(
+        children: [
+          signUpController.galleryImage.value != null
+              ? Container(
+                  width: 300,
+                  height: 300,
+                  color: const Color.fromARGB(255, 212, 221, 247),
+                  child: Image.file(
+                      File(signUpController.galleryImage.value!.path)),
+                )
+              : Container(
+                  width: 300,
+                  height: 300,
+                  color: const Color.fromARGB(255, 212, 221, 247),
+                ),
+          if (signUpController.galleryImage.value != null)
+            Positioned(
+              top: 5,
+              right: 5,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.red),
+                onPressed: () {
+                  signUpController.resetData();
+                },
+              ),
             ),
-      if (_galleryImage != null)
-        Positioned(
-          top: 5,
-          right: 5,
-          child: IconButton(
-            icon: Icon(Icons.close, color: Colors.red),
+        ],
+      ),
+    );
+  }
+
+  /// 갤러리 버튼 누를시 함수
+  Widget galleryButtonWidget(
+      {required BuildContext context,
+      required SignUpController signUpController}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton.icon(
+          onPressed: () {
+            signUpController.resetData();
+            signUpController.getImage(ImageSource.gallery);
+          },
+          style: TextButton.styleFrom(
+              minimumSize: const Size(130, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              backgroundColor: const Color.fromARGB(255, 146, 148, 255),
+              foregroundColor: const Color.fromARGB(255, 234, 234, 236)),
+          icon: const Icon(Icons.photo),
+          label: const Text(
+            "갤러리",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(width: 20), // 간격을 위해 추가한 코드
+        ElevatedButton.icon(
+            onPressed: () async {
+              // if (signUpController.galleryImage.value == null) {
+              if (signUpController.galleryImage.value == null) {
+                showErrorDialog(context, '사진을 선택해주세요');
+              }
+
+              try {
+                await signUpController.uploadImage(signUpController
+                    .galleryImage.value); // 결과를 dogTypeResult에 저장
+
+                resultDialog(signUpController);
+
+                // signUpController.hasReceivedResult = true;
+              } catch (e) {
+                debugPrint("Error: $e");
+              }
+            },
+            style: TextButton.styleFrom(
+                minimumSize: const Size(130, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                backgroundColor: const Color.fromARGB(255, 146, 148, 255),
+                foregroundColor: const Color.fromARGB(255, 234, 234, 236)),
+            icon: const Icon(Icons.pets),
+            label: const Text(
+              "닮은 강아지 찾기",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            )),
+      ],
+    );
+  }
+
+  /// 사진 선택 안했을 때 띄우는 다이얼로그
+  showErrorDialog(BuildContext context, String text) {
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: true, // 다른곳 클릭시 닫기
+      builder: (BuildContext context) {
+        return errorDialog(text);
+      },
+    );
+  }
+
+  CupertinoAlertDialog errorDialog(String text) {
+    return CupertinoAlertDialog(
+      title: const Text("실패"),
+      content: Text(text),
+      actions: [
+        CupertinoDialogAction(
+          child: CupertinoButton(
+            child: const Text("확인"),
             onPressed: () {
-              setState(() {
-                _galleryImage = null;
-              });
+              Get.back();
             },
           ),
         ),
-    ],
-  );
-}
+      ],
+    );
+  }
 }
 
-  // Widget _buildButton() {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     children: [
-  //       ElevatedButton.icon(
-  //           onPressed: () {
-  //             getImage(ImageSource.camera);
-  //           },
-  //           style: TextButton.styleFrom(
-  //               minimumSize: Size(130, 50),
-  //               shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(10),
-  //               ),
-  //               backgroundColor: Color.fromARGB(255, 152, 175, 250),
-  //               foregroundColor: Color.fromARGB(255, 234, 234, 236)),
-  //           icon: Icon(Icons.photo),
-  //           label: Text(
-  //             "카메라",
-  //             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //           )),
-  //     ],
-  //   );
-  // }
-// }
+// End

@@ -2,6 +2,7 @@ import 'package:blind_dating/firebase_options.dart';
 import 'package:blind_dating/view/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 
 Future<void> main() async {
@@ -56,6 +57,15 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
+      // Localization
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko', ''),
+      ],
       home: Login(onChangeTheme: _changeThemeMode),
       debugShowCheckedModeBanner: false,
     );

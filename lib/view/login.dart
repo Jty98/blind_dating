@@ -2,6 +2,7 @@ import 'package:blind_dating/homewidget.dart';
 import 'package:blind_dating/model/user.dart';
 import 'package:blind_dating/view/profile.dart';
 import 'package:blind_dating/view/signupfirst.dart';
+import 'package:blind_dating/view/signupsecond.dart';
 import 'package:blind_dating/viewmodel/loadUserData_ctrl.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -140,7 +141,8 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                 height: 30,
               ),
               ElevatedButton(
-                onPressed: () => Get.to(() => SignUpFirst(onChangeTheme: widget.onChangeTheme)),
+                onPressed: () => Get.to(
+                    () => SignUpFirst(onChangeTheme: widget.onChangeTheme)),
                 style: ElevatedButton.styleFrom(
                     minimumSize: Size(350, 50),
                     backgroundColor: Color.fromARGB(255, 141, 148, 244),
@@ -149,7 +151,22 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                   "회원가입",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-              )
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              ElevatedButton(
+                onPressed: () => Get.to(
+                    () => SignUpSecond(onChangeTheme: widget.onChangeTheme)),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(350, 50),
+                    backgroundColor: Color.fromARGB(255, 141, 148, 244),
+                    foregroundColor: Color.fromARGB(255, 245, 245, 245)),
+                child: const Text(
+                  "AI Test",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
         ),
