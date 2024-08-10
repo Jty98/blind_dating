@@ -1,19 +1,10 @@
 import 'package:blind_dating/components/mydrawer.dart';
-import 'package:blind_dating/model/sliderItems_model.dart';
-import 'package:blind_dating/model/user.dart';
-import 'package:blind_dating/util/theme.dart';
 import 'package:blind_dating/view/alarm.dart';
 import 'package:blind_dating/view/appbarWidget.dart';
 import 'package:blind_dating/view/chat_room_lists.dart';
-import 'package:blind_dating/view/chats.dart';
-import 'package:blind_dating/view/favorite.dart';
-import 'package:blind_dating/view/login.dart';
 import 'package:blind_dating/view/mainpage.dart';
 import 'package:blind_dating/view/profile.dart';
-import 'package:blind_dating/viewmodel/chat_request.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 class HomeWidget extends StatefulWidget {
   final Function(ThemeMode) onChangeTheme;
@@ -63,7 +54,7 @@ class _HomeWidgetState extends State<HomeWidget>
           physics: const NeverScrollableScrollPhysics(),
           children: [
             MainPage(onChangeTheme: widget.onChangeTheme), // 태영 메인 페이지
-            const ChatRoomLists(), // 진 채팅 페이지
+            ChatRoomLists(), // 진 채팅 페이지
             // const FavoritePage(),
             const AlarmPage(),
             Profile(onChangeTheme: widget.onChangeTheme,) // ?? 프로필 페이지

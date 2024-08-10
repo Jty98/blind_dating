@@ -101,12 +101,12 @@ class MainPage extends StatelessWidget {
                       List? userList = snapshot.data?[2]; // db에서 불러온 유저 정보 리스트
                       List? loginData = snapshot.data?[3]; // 로그인된 유저의 데이터
 
-                      print("로그인된 유저닉네임: ${loginData![0]['unickname']}");
-                      print(
-                          "로그인된 유저권한: ${loginData[0]['ugender'] == "0" ? "남성" : "여성"}");
-                      print(
-                          "로그인된 유저권한: ${loginData[0]['ugrant'] == 1 ? "구독자" : "무료 사용자"}");
-                      print("로그인된 유저 채팅카운트: ${loginData[0]['uchatcount']}");
+                      // print("로그인된 유저닉네임: ${loginData![0]['unickname']}");
+                      // print(
+                      //     "로그인된 유저권한: ${loginData[0]['ugender'] == "0" ? "남성" : "여성"}");
+                      // print(
+                      //     "로그인된 유저권한: ${loginData[0]['ugrant'] == 1 ? "구독자" : "무료 사용자"}");
+                      // print("로그인된 유저 채팅카운트: ${loginData[0]['uchatcount']}");
 
                       if (loginData != null) {
                         // 유저에게 결제해서 권한이 있을경우 얼굴 이미지 띄워줌
@@ -153,7 +153,7 @@ class MainPage extends StatelessWidget {
                             userMBTI: userList[0]['umbti'],
                             userBreed: userList[0]['ubreed'],
                             userSmoke: isSmoke()[0],
-                            loginUid: loginData[0]['uid'],
+                            loginUid: loginData![0]['uid'],
                             loginGrant: loginData[0]['ugrant'],
                             loginName: loginData[0]['unickname'],
                             loginChatCount: loginData[0]['uchatcount']),

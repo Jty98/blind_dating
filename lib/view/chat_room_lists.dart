@@ -1,247 +1,163 @@
-import 'package:blind_dating/model/chat_messages.dart';
-import 'package:blind_dating/model/chat_rooms.dart';
+import 'package:blind_dating/components/image_widget.dart';
 import 'package:blind_dating/model/chat_rooms_list.dart';
+import 'package:blind_dating/model/user.dart';
 import 'package:blind_dating/view/chats.dart';
 import 'package:blind_dating/viewmodel/loadUserData_ctrl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
-class ChatRoomLists extends StatefulWidget {
-  const ChatRoomLists({super.key});
-
-  @override
-  State<ChatRoomLists> createState() => _ChatListsState();
-}
-
-class _ChatListsState extends State<ChatRoomLists> {
-  //// property
-  // late String chatRoomId;
-  // class 아래 BuildContext 위에 유저 데이터를 관리하는 컨트롤러 인스턴스 선언
+class ChatRoomLists extends StatelessWidget {
   final LoadUserData userDataController = Get.put(LoadUserData());
-  // 사용자 로그인 정보 받아둘 리스트
-  late List loginData = [];     // 현재 사용자
-  late List userData = [];      // 상대 사용자
-  
-  @override
-  void initState() {
-    super.initState();
-  }
+  ChatRoomLists({super.key});
+
+  Map<String, dynamic> loginData = {};
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: Future.wait([userDataController.getLoginData(), userDataController.getUserData()]),
+        future: userDataController.getLoginData(),
         builder: (context, snapshot) {
+          print('FutureBuilder state: ${snapshot.connectionState}');
           if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              print('FutureBuilder error: ${snapshot.error}');
+              return Center(child: Text('오류 발생: ${snapshot.error.toString()}'));
+            }
+
             if (snapshot.hasData) {
-              loginData = snapshot.data![0];
-              userData = snapshot.data![1];
-              // final checkAccept = FirebaseFirestore.instance.collection('requestChats').snapshots();
-              // if checkAccept['acceptState'] == 'accpet'
+              // loginData = snapshot.data![0];
+
               return StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                  .collection('chatRooms')
-                  .snapshots(),
+                    .collection('chatRooms')
+                    .where('accepter', isEqualTo: UserModel.unickname)
+                    .orderBy('createdAt', descending: true) // createdAt 기준으로 정렬
+                    .snapshots(),
                 builder: (context, snapshot) {
+                  print('StreamBuilder state: ${snapshot.connectionState}');
                   if (snapshot.hasError) {
-                    print('오류 발생: ${snapshot.error.toString()}');
-                    return Center(child: Text('오류 발생: ${snapshot.error.toString()}'),);
+                    print('StreamBuilder error: ${snapshot.error}');
+                    return Center(
+                        child: Text('오류 발생: ${snapshot.error.toString()}'));
                   }
-                  if(!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator(),);
+                  if (!snapshot.hasData) {
+                    print('StreamBuilder: 데이터 없음');
+                    return const Center(child: CircularProgressIndicator());
                   }
+
                   final chatRoomsDocs = snapshot.data!.docs;
-                  print(chatRoomsDocs);
-                  // 메시지 컬렉션 받아와서 마지막 메시지 보여주기
-                  // chatRoomId = snapshot.data!.docs;
-                  // return StreamBuilder<QuerySnapshot>(
-                  //   stream: stream, 
-                  //   builder: builder,
-                  // );
-                  // print("User 닉넴: ${loginData[0]['unickname']} _ 지니 확인용!");
+
+                  // createdAt 기준으로 정렬
+                  chatRoomsDocs.sort((a, b) {
+                    Timestamp aCreatedAt = a['createdAt'];
+                    Timestamp bCreatedAt = b['createdAt'];
+                    return bCreatedAt.compareTo(aCreatedAt); // 내림차순 정렬
+                  });
+
+                  print('filteredChatRooms length: ${chatRoomsDocs.length}');
+
                   return ListView.builder(
                     itemCount: chatRoomsDocs.length,
                     itemBuilder: (context, index) {
                       final chatRoomId = chatRoomsDocs[index];
                       final contacter = chatRoomId['contacter'];
-                      final accepter = chatRoomId['accepter'];
                       final createdAt = chatRoomId['createdAt'];
-                      final chatRoomName = (loginData[0]['unickname'] == contacter ? accepter : contacter); // 상대방 닉네임
-                      final chats = FirebaseFirestore.instance.collection('chatRooms').doc().collection('chats');
-                      
-                      return GestureDetector(
-                        onTap: () {
-                          // print("chatRoomName : $chatRoomName - 지니 확인용 (넘기기 전)");
-                          Get.to(const Chats(), arguments: [chatRoomId.id, chatRoomName]);
-                        },
-                        child: Visibility(
-                          visible: (loginData[0]['unickname'] == accepter) || (loginData[0]['unickname'] == contacter),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                // 'images/퍼그.png'
-                                userData[0]['ufaceimg1'],
-                              ),
-                              radius: 50,
-                            ),
-                            title: Row(
-                              children: [
-                                Text(
-                                  chatRoomName,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(0, 10, 15, 0),
-                                    child: Text(
-                                      // 하루 지나면 어제, 어제 지나면 월일, 한 해 지나면 년월일 보여주도록 삼항연산자 적기
-                                      '${createdAt.toDate().year}년 ${createdAt.toDate().month}월 ${createdAt.toDate().day}일',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 13
-                                      ),
-                                    textAlign: TextAlign.right,
+                      final chatRoomName = (UserModel.unickname == contacter
+                          ? chatRoomId['accepter']
+                          : chatRoomId['contacter']);
+
+                      return FutureBuilder(
+                        future: userDataController.selectChatUserInfo(
+                            unickname: chatRoomName, createdAt: createdAt),
+                        builder: (context, snapshot) {
+                          print(
+                              'Inner FutureBuilder state: ${snapshot.connectionState}');
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            print(
+                                'Inner FutureBuilder error: ${snapshot.error}');
+                            return Center(
+                                child: Text(
+                                    '오류 발생: ${snapshot.error.toString()}'));
+                          } else if (snapshot.hasData) {
+                            final chatUserList =
+                                snapshot.data as List<ChatRoomsList>;
+
+                            // chatUserList의 데이터가 필터링된 인덱스와 일치하는지 확인
+                            if (index < chatUserList.length) {
+                              return GestureDetector(
+                                onTap: () {
+                                  Get.to(const Chats(), arguments: [
+                                    chatRoomId.id,
+                                    chatRoomName,
+                                  ]);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: ListTile(
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(horizontal: 0),
+                                    leading:
+                                        showImageWidget(unickname: chatRoomName, size: 60),
+                                    title: Row(
+                                      children: [
+                                        Text(
+                                          "$chatRoomName, $index",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20),
+                                        ),
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 10, 15, 0),
+                                            child: Text(
+                                              '${createdAt.toDate().year}년 ${createdAt.toDate().month}월 ${createdAt.toDate().day}일',
+                                              style: const TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 13),
+                                              textAlign: TextAlign.right,
+                                            ),
+                                          ),
+                                        )
+                                      ],
                                     ),
                                   ),
-                                )
-                              ],
-                            ),
-                            // subtitle: Text(
-                            //   "마지막 채팅 메시지",
-                            //   style: TextStyle(
-                            //     fontSize: 17
-                            //   ),
-                            // ),
-                          ),
-                        ),
+                                ),
+                              );
+                            } else {
+                              print("dddd");
+                              return Center(
+                                  child: Text(
+                                      "데이터 없음 listLength: ${chatRoomsDocs.length}"));
+                            }
+                          } else {
+                            print('Inner FutureBuilder: 데이터 없음');
+                            return const Center(child: Text("데이터 없음"));
+                          }
+                        },
                       );
                     },
                   );
-                }
+                },
               );
             } else {
-              return const Text("데이터 없음");
+              print('FutureBuilder@@@@@@@@@@@@@@@@@@@@@@@@: 데이터 없음');
+              return const Center(child: Text(""));
             }
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else {
-            return const Text("데이터 로딩 중 오류 발생");
+            print('FutureBuilder: 데이터 로딩 중 오류 발생');
+            return const Center(child: Text("데이터 로딩 중 오류 발생"));
           }
-        }
-      )
+        },
+      ),
     );
-  }   // Widget build
-
-// Widget _buildItemWidget(DocumentSnapshot doc) {
-//   final chatRoom = doc.data() as Map<String, dynamic>;
-//   final chatRoomId = doc.id;
-//   final contacter = chatRoom['contacter'];
-//   final accepter = chatRoom['accepter'];
-//   final createdAt = chatRoom['createdAt'];
-//   final chatMessage = FirebaseFirestore.instance.collection('chatRooms').doc(chatRoomId).collection('chats');
-
-//   //// model 파일에 작성한 내용 사용시
-//   // final chatRoomLists = ChatRooms(
-//   //   contacter: doc['contacter'], 
-//   //   accepter: doc['accepter'], 
-//   //   createdAt: doc['createdAt'], 
-//   //   chats: doc['chats']
-//   // );
-//   return Dismissible(
-//     // direction: DismissDirection.endToStart,
-//     // background: Container(
-//     //   color: Colors.red,
-//     //   alignment: Alignment.centerRight,
-//     //   child: const Text("채팅방 나가기"),
-//     // ),
-//     key: ValueKey(doc),
-//     onDismissed: (direction) {
-//         // FirebaseFirestore.instance
-//         // .collection('students')
-//         // .doc(doc.id)
-//         // .delete();
-//     },     // 채팅방 나가기 (삭제)
-//     child: GestureDetector(
-//       onTap: () async{
-//         // print(doc.id);
-//         // contacter와 accepter중 사용자 id와 다른 사람 id 넘겨줌 (다음 페이지 앱바 타이틀)
-//         // await Get.to(const Chats(), arguments: [doc.id, chatRoomLists.contacter]);    
-//         await Get.to(const Chats(), arguments: doc.id);    
-//       },
-//       // child: Padding(
-//       //   padding: const EdgeInsets.fromLTRB(3, 0, 3, 3),
-//       //     child: Visibility(
-//       //       visible: (loginData[0]['uid'] == accepter) || (loginData[0]['uid'] == contacter),
-//       //         child: ListTile(
-                
-//       //           title: Row(
-//       //             children: [
-//       //               Text(
-//       //                 // loginData[0]['uid'],    // 로그인한 사람이랑 다른 아이디(의 닉네임) 보여주기
-//       //                 contacter,
-//       //                 style: const TextStyle(
-//       //                   fontWeight: FontWeight.bold,
-//       //                   fontSize: 20
-//       //                 ),
-//       //               ),
-//       //               Expanded(
-//       //                 child: Padding(
-//       //                   padding: const EdgeInsets.fromLTRB(0, 10, 15, 0),
-//       //                   child: Text(
-//       //                     // 하루 지나면 어제, 어제 지나면 월일, 한 해 지나면 년월일 보여주도록 삼항연산자 적기
-//       //                     '${createdAt.toDate().year}년 ${createdAt.toDate().month}월 ${createdAt.toDate().day}일',
-//       //                     style: const TextStyle(
-//       //                       color: Colors.grey,
-//       //                       fontSize: 13
-//       //                     ),
-//       //                   textAlign: TextAlign.right,
-//       //                   ),
-//       //                 ),
-//       //               )
-//       //             ],
-//       //           ),
-//       //           subtitle: Text(
-//       //             "마지막 채팅 메시지",
-//       //             style: TextStyle(
-//       //               fontSize: 17
-//       //             ),
-//       //           ),
-//       //         ),
-//       //       )
-//       //     ),
-//         ),
-//     );
-    
-  // }
-
-  // ------ functions -----
-  // Future<ChatRooms> getChatMessages(String chatRoomId) async{
-  //   final chatMessages = await FirebaseFirestore.instance
-  //     .collection('chatMessages')
-  //     .snapshots();
-  //   // final chatMessages = <ChatMessages>[];
-
-  //   final chats = ChatMessages(
-  //     content: content, 
-  //     sender: sender, 
-  //     sendingTime: sendingTime,
-  //   );
-  //   for (var messageDoc in chatMessagesQuery.docs) {
-  //     final messageData = messageDoc.data();
-  //     final chatMessage = ChatMessages.fromJson(messageData);
-  //     chatMessage.add(chatMessage);
-  //   }
-
-    // return chatMessages;
-  // }
-
-
-
-
+  }
 }
