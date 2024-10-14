@@ -18,6 +18,7 @@ class UserModel {
   static String loginUid = ''; // 로그인된 유저 ID
   static String loginName = ''; // 로그인된 유저 이름
   static String imageURL = '';
+  static int ugrant = 0; // 유저의 구독권 권한 여부 (0: 무료, 1: 구독)
 
   // 이미지 URL을 UserModel의 imageURL 변수에 저장하는 함수
   static void setImageURL(String url) {
@@ -45,6 +46,7 @@ class UserModel {
     loginUid = '';
     loginName = '';
     imageURL = '';
+    ugrant = 0;
   }
 
   UserModel();

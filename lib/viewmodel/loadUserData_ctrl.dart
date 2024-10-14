@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:blind_dating/model/chat_rooms_list.dart';
 import 'package:blind_dating/model/user.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -19,43 +19,14 @@ class LoadUserData extends GetxController {
   var isPermissionGranted = false.obs;
   var userList = [].obs; // 유저 정보를 저장할 리스트
   RxList<ChatRoomsList> chatUserList = <ChatRoomsList>[].obs;
+  RxList<dynamic> chatList = <dynamic>[].obs;
+  RxMap<String, dynamic> lastChatData = <String, dynamic>{}.obs;
+
   List loginData = []; // 로그인된 유저 정보를 저장할 리스트
   RxInt userGrant = 0.obs;
   double latData = 0.0;
   double longData = 0.0;
   RxInt listLength = 0.obs;
-
-  // var loginData1 = <String, dynamic>{}.obs;
-  // var chatRooms = <QueryDocumentSnapshot>[].obs;
-
-  // @override
-  // void onInit() async{
-  //   await loadLoginData();
-  //   super.onInit();
-  // }
-
-  // Future<void> loadLoginData() async {
-  //   try {
-  //     var data = await getLoginData();
-  //     if (data != null && data.isNotEmpty) {
-  //       loginData1.value = data[0];
-  //       loadChatRooms();
-  //     }
-  //   } catch (e) {
-  //     print('Error loading login data: $e');
-  //   }
-  // }
-
-  // void loadChatRooms() {
-  //   FirebaseFirestore.instance
-  //       .collection('chatRooms')
-  //       .where('accepter', isEqualTo: loginData1['unickname'])
-  //       .orderBy('createdAt', descending: true)
-  //       .snapshots()
-  //       .listen((snapshot) {
-  //     chatRooms.value = snapshot.docs;
-  //   });
-  // }
 
   grantStatus(value) {
     userGrant.value = value;
@@ -151,6 +122,7 @@ class LoadUserData extends GetxController {
       // 이미지 URL 추출
       String ufaceimg1 = result[0]['ufaceimg1'];
       String unickname = result[0]['unickname'];
+      int ugrant = result[0]['ugrant'];
       // print("unickname: ${result[0]['unickname']}");
       // String unickname = result[1]['unickname'];
       // String uhobbyimg1 = result[0]['uhobbyimg1'];
@@ -160,6 +132,8 @@ class LoadUserData extends GetxController {
       // 이미지 URL을 UserModel에 저장
       UserModel.setImageURL(ufaceimg1);
       UserModel.unickname = unickname;
+      UserModel.ugrant = ugrant;
+
       // UserModel.setImageURL(uhobbyimg1);
       // UserModel.setImageURL(uhobbyimg2);
       // UserModel.setImageURL(uhobbyimg3);
@@ -200,38 +174,33 @@ class LoadUserData extends GetxController {
   /// @@ 채팅방의 상대방의 정보를 MySQL에서 불러오는 함수
   /// @@ 유저 닉네임으로 Firebase의 채팅리스트를 불러와서 거기있는 상대방 닉네임을 쿼리로 넣는 방식
   /// @@ Prams: unickname: 채팅방 상대방의 닉네임을 파라미터로 받음
-  Future<List<ChatRoomsList>> selectChatUserInfo(
-      {required String unickname, required Timestamp createdAt}) async {
+  Future<String> selectChatUserInfo({required String uid}) async {
     chatUserList.clear(); // 이전 데이터 초기화
 
     try {
       var url = Uri.parse(
-          'http://localhost:8080/Flutter/dateapp_chat_user_query_flutter.jsp?unickname=$unickname');
+          'http://localhost:8080/Flutter/dateapp_chat_user_query_flutter.jsp?uid=$uid');
       var response = await http.get(url);
 
       var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
 
-      if (dataConvertedJSON['results'] is List) {
-        // 데이터를 정렬하기 위해 먼저 JSON 리스트를 가져옴
-        var fetchedList = dataConvertedJSON['results'] as List;
-        // print('fetchedList.first.createdAt: ${fetchedList.first.createdAt}');
-        // JSON 리스트를 createdAt 필드를 기준으로 정렬
-        fetchedList.sort((a, b) {
-          DateTime aCreatedAt = DateTime.parse(a['createdAt']); // a의 생성일자
-          DateTime bCreatedAt = DateTime.parse(b['createdAt']); // b의 생성일자
-          return aCreatedAt.compareTo(bCreatedAt); // 오름차순 정렬
-        });
+      String unickname = dataConvertedJSON['results'][0]['unickname'];
 
-        // 정렬된 JSON 데이터를 ChatRoomsList 객체로 변환하여 리스트에 추가
-        chatUserList.addAll(
-          fetchedList.map((data) => ChatRoomsList.fromJson(data)).toList(),
-        );
+      // if (dataConvertedJSON['results'] is List) {
+      //   // 데이터를 정렬하기 위해 먼저 JSON 리스트를 가져옴
+      var fetchedList = dataConvertedJSON['results'] as List;
 
-        return chatUserList; // 정렬된 데이터 반환
-      } else {
-        print("Unexpected data format");
-        return Future.error("Unexpected data format");
-      }
+      //   // 정렬된 JSON 데이터를 ChatRoomsList 객체로 변환하여 리스트에 추가
+      chatUserList.addAll(
+        fetchedList.map((data) => ChatRoomsList.fromJson(data)).toList(),
+      );
+
+      return unickname;
+      //   return chatUserList; // 정렬된 데이터 반환
+      // } else {
+      //   print("Unexpected data format");
+      //   return Future.error("Unexpected data format");
+      // }
     } catch (e) {
       print(e);
       return Future.error(e);
@@ -239,19 +208,21 @@ class LoadUserData extends GetxController {
   }
 
   // 채팅리스트에 뜬 유저들 이미지만 불러오기
-  Future<String> showUserImages({required String unickname}) async {
+  Future<String> showUserImages({required String uid}) async {
     try {
       var url = Uri.parse(
-          'http://localhost:8080/Flutter/dateapp_user_image_query_flutter.jsp?unickname=$unickname');
+          'http://localhost:8080/Flutter/dateapp_user_image_query_flutter.jsp?uid=$uid');
       var response = await http.get(url);
 
       var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
-
-      // results 리스트의 첫 번째 요소에서 ufaceimg1만 추출
-      String ufaceimg1 = dataConvertedJSON['results'][0]['ufaceimg1'];
+      String resultImage = "";
+      // 구독 여부에 따라서 프로필 이미지 다르게 리턴
+      UserModel.ugrant == 0
+          ? resultImage = dataConvertedJSON['results'][0]['udogimg']
+          : resultImage = dataConvertedJSON['results'][0]['ufaceimg1'];
       // print("ufaceimg1: $ufaceimg1");
 
-      return ufaceimg1;
+      return resultImage;
     } catch (e) {
       print(e);
       return Future.error(e);

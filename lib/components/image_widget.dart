@@ -1,12 +1,13 @@
 import 'package:blind_dating/viewmodel/loadUserData_ctrl.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 // 이미지 불러오기 위젯
-showImageWidget({required unickname, required double size}) {
+showImageWidget({required uid, required double size}) {
   final userDataController = Get.find<LoadUserData>();
   return FutureBuilder<String>(
-    future: userDataController.showUserImages(unickname: unickname),
+    future: userDataController.showUserImages(uid: uid),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const CircularProgressIndicator(); // 로딩 중일 때
@@ -46,4 +47,33 @@ showImageWidget({required unickname, required double size}) {
       }
     },
   );
+}
+
+// 프로필만을 위한 위젯
+showProfileImageWidget({required String imageUrl, required double size, required BuildContext context}) {
+  return Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.0),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onPrimaryContainer
+                    .withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3), // 그림자의 위치
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20.0),
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+            ),
+          ),
+        );
 }

@@ -3,10 +3,7 @@
 import 'package:blind_dating/components/main_imageSlider_widget.dart';
 import 'package:blind_dating/model/sliderItems_model.dart';
 import 'package:blind_dating/view/mainpage_detail.dart';
-import 'package:blind_dating/view/paymentspage.dart';
-import 'package:blind_dating/viewmodel/chat_request.dart';
 import 'package:blind_dating/viewmodel/loadUserData_ctrl.dart';
-import 'package:blind_dating/viewmodel/location_ctrl.dart';
 import 'package:blind_dating/viewmodel/indicatorCurrent_crtl.dart';
 import 'package:carousel_slider/carousel_controller.dart';
 import 'package:flutter/material.dart';
@@ -226,10 +223,6 @@ class MainPage extends StatelessWidget {
 
                         // 성별에 따라 다른 배경컬러 적용
                         Color genderColors() {
-                          // print(
-                          //     "첫 번째 유저의 성별 = ${userList[0]['ugender'] == 0 ? "남성" : "여성"}");
-                          // print(
-                          //     "두 번째 유저의 성별 = ${userList[1]['ugender'] == 0 ? "남성" : "여성"}");
                           bool user1IsMale = userList[0]['ugender'] == "0";
 
                           // 여성일 때와 남성일 때의 색상을 Map에 정의
